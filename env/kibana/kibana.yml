@@ -1,0 +1,5 @@
+keycloak.serverUrl: http://localhost:8080/auth
+keycloak.realm: kibana
+keycloak.clientId: kibana
+keycloak.clientSecret: y8gSCns8hPTkQr6Zqwu2hPw6ScQDZNZz
+keycloak.session.cookieOptions.password: JWFn3Er]PqNZ7n{H$L9aa}Eeg#J`9?zb-/jyt?;#px>?@xaYrx_"P>Y%k[~7VGWV

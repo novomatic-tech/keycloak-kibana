@@ -1,0 +1,26 @@
+version: '2.1'
+services:
+  keycloak:
+    image: jboss/keycloak:4.0.0.Beta2
+    environment:
+      - KEYCLOAK_USER=admin
+      - KEYCLOAK_PASSWORD=admin
+      - DB_VENDOR=H2
+    expose:
+      - 8080
+    command:
+      - "-b 0.0.0.0"
+      - "-Dkeycloak.import=/opt/jboss/keycloak/kibana-realm.json"
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./env/keycloak/kibana-realm.json:/opt/jboss/keycloak/kibana-realm.json
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.2.4
+    expose:
+      - 9200
+    environment:
+      ES_JAVA_OPTS: -Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+
