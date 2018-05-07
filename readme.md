@@ -20,7 +20,7 @@ You can download it [here](https://www.elastic.co/downloads/kibana).
 # Remove the  previously installed plugin (optional)
 $ $KIBANA_HOME/bin/kibana-plugin.sh remove keycloak-kibana
 # Install a new version of plugin
-$ $KIBANA_HOME/bin/kibana-plugin.sh install ./build/keycloak-kibana-0.1.0.zip
+$ $KIBANA_HOME/bin/kibana-plugin.sh install file:./build/keycloak-kibana-0.1.0.zip
 ```
 
 ## Versioning and compatibility

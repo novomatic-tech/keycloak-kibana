@@ -16,7 +16,13 @@
           "value": "admin"
         }
       ],
-      "groups": [ "Administrator" ]
+      "groups": [ "Administrator" ],
+      "clientRoles": {
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      }
     },
     {
       "username": "trice",
@@ -29,7 +35,13 @@
           "value": "trice"
         }
       ],
-      "groups": [ "Report Viewer" ]
+      "groups": [ "Report Viewer" ],
+      "clientRoles": {
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      }
     }
   ],
   "groups": [

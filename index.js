@@ -19,6 +19,13 @@ const isLoginOrLogout = (request) => {
     return url.startsWith('/sso/login') || url.startsWith('/sso/logout');
 };
 
+const principalConversion = (principal) => {
+    const modifiedPrincipal = Object.assign({}, principal);
+    delete modifiedPrincipal.accessToken;
+    delete modifiedPrincipal.idToken;
+    return modifiedPrincipal;
+};
+
 export default function (kibana) {
   return new kibana.Plugin({
     require: ['elasticsearch','kibana'],
@@ -61,7 +68,7 @@ export default function (kibana) {
         }).then(() => {
             return server.register({
                 register: keycloak,
-                options: config
+                options: Object.assign(config, { principalConversion })
             });
         }).then(() => {
             server.auth.strategy('keycloak', 'keycloak', 'required');
