@@ -33,8 +33,8 @@ Kibana version | Plugin version
 `6.2.4` | `1.0.0_6.2.4`
 
 
-  The second version in the plugin (after `'_'`) must correspond to your Kibana version or it will fail.
-  If the required version is not available to download, you must build it yourself. Please read the racionale for additional details.
+  The second version in the plugin (after `'_'`) must correspond to your Kibana version or the plugin will fail.
+  If the required version is not available to download, you must build it yourself. Please read further for additional details on this topic.
 
   **Racionale**
 
@@ -43,10 +43,10 @@ Kibana version | Plugin version
   
   Since it's hard to keep up with Kibana release train,
   this repository does not attempt to do it.
-  However, you can still try to build the plugin which will work with
-  your Kibana version:
+  However, you can still try to build the plugin which works with
+  your Kibana version (the plugin was tested with the major Kibana releases and hardly anything has changed):
 
-  - Change the `kibana.version` property in the `package.json` file to your desired Kibana version (it should work with 5.x - 6.2.x)
+  - Just change the `kibana.version` property in the `package.json` file to your desired Kibana version (it should work with 5.x - 6.2.x)
   - Build and install the plugin
 
 ## Configuration
@@ -67,6 +67,7 @@ Parameter | Description | Default
 `keycloak.session.cookieOptions.password` |  A password used to encrypt session cookies. It must be at least 32 characters long. It is also recommended to rotate your ookie session password on a regular basis. This is REQUIRED. | 
 `keycloak.session.cookieOptions.isSecure` | Determines whether or not to transfer session cookies using TLS/SSL. | `false`
 `keycloak.session.cookieOptions.isHttpOnly` | Determines whether or not to set HttpOnly option in cookie. Cookies, when used with the HttpOnly cookie flag, are not accessible through JavaScript, and are immune to XSS. | `false`
+`keycloak.requiredRoles` | A list of Keycloak roles a user has to be assigned to in order to access Kibana. By default, any authenticated user can use Kibana. When this property is set only users with certain roles assigned can access Kibana. | `[]`
 
 Sample configuration section can be found in the `env/kibana/kibana.yml` file.
 
@@ -84,9 +85,9 @@ Sample configuration section can be found in the `env/kibana/kibana.yml` file.
   ```bash
   # The second version after '_' must correspond to your Kibana version or it will fail.
   # If the required version is not available, please refer to the Compatibility section of this guide. 
-  $ $KIBANA_HOME/bin/kibana-plugin.sh install http://github..../keycloak-kibana-0.1.0_6.2.4.zip 
+  $ $KIBANA_HOME/bin/kibana-plugin.sh install https://github.com/novomatic-tech/keycloak-kibana/releases/download/1.0.0/keycloak-kibana-1.0.0_6.2.4.zip
   $ $KIBANA_HOME/bin/kibana.sh
   ```
 
-
+- Visit `localhost:5601` and log in as `trice:trice` to try it out.
 
