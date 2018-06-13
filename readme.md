@@ -29,6 +29,7 @@ The following versioning schema is used:
 
 Kibana version | Plugin version
 --- | ---
+`5.4.3` | `1.0.0_5.4.3`
 `5.6.9` | `1.0.0_5.6.9`
 `6.2.4` | `1.0.0_6.2.4`
 
