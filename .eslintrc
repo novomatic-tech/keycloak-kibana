@@ -1,7 +1,2 @@
 ---
-extends: "@elastic/kibana"
-
-settings:
-  import/resolver:
-    '@elastic/eslint-import-resolver-kibana':
-      rootPackageName: 'my-plg'
+extends: "@elastic/eslint-config-kibana"

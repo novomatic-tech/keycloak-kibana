@@ -2,8 +2,14 @@ import 'angular-resource';
 import { uiModules } from 'ui/modules';
 
 uiModules.get('app/keycloak', ['ngResource']).service('authService', ($resource, chrome) => {
-    const url = chrome.addBasePath('/api/principal');
-    return $resource(url, {}, {
-        getPrincipal: { method: 'GET', url }
-    });
+  const url = chrome.addBasePath('/api/principal');
+  return $resource(url, {}, {
+    getPrincipal: {
+      method: 'GET',
+      url,
+      transformResponse: (data, headers, statusCode) => {
+        return { data: angular.fromJson(data), statusCode };
+      }
+    }
+  });
 });
