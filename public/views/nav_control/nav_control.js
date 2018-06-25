@@ -14,10 +14,10 @@ uiModules.get('app/keycloak', ['kibana']).controller('keycloakNavController', ($
   $scope.tooltipContent = (content) => {
     return globalNavState.isOpen() ? undefined : content;
   };
-  authService.getPrincipal().$promise.then((result) => {
-    if(result.statusCode === 200) {
-      $scope.user = result.data;
-    } else {
+  authService.getPrincipal().then(response => {
+    $scope.user = response.data;
+  }).catch(response => {
+    if(response.status === 401) {
       window.location.reload(true);
     }
   });
