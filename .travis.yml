@@ -1,0 +1,26 @@
+language: node_js
+node_js:
+  - "8"
+
+before_install:
+  - export VERSION=$(node -p "require('./package.json').version")
+  - export NAME=$(node -p "require('./package.json').name")
+
+install:
+  - npm install
+  - mkdir release
+  - npm run build -- --kibana-version 5.4.3
+  - mv build/*.zip release/${NAME}-${VERSION}_5.4.3.zip
+  - npm run build -- --kibana-version 5.6.9
+  - mv build/*.zip release/${NAME}-${VERSION}_5.6.9.zip
+  - npm run build -- --kibana-version 6.2.4
+  - mv build/*.zip release/${NAME}-${VERSION}_6.2.4.zip
+
+deploy:
+  provider: releases
+  api_key: $AUTH_TOKEN
+  file_glob: true
+  file: release/*
+  skip_cleanup: true
+  on:
+    tags: true
