@@ -55,7 +55,7 @@ const configureInsufficientPermissionsResponse = (server, basePath, requiredRole
 
 export default function (kibana) {
   return new kibana.Plugin({
-    require: ['elasticsearch', 'kibana'],
+    require: ['kibana'],
     name: 'keycloak-kibana',
     configPrefix: KEYCLOAK_CONFIG_PREFIX,
     uiExports: {
