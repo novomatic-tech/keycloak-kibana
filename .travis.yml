@@ -9,6 +9,8 @@ before_install:
 install:
   - npm install
   - mkdir release
+  - npm run build -- --kibana-version 5.3.0
+  - mv build/*.zip release/${NAME}-${VERSION}_5.3.0.zip
   - npm run build -- --kibana-version 5.4.3
   - mv build/*.zip release/${NAME}-${VERSION}_5.4.3.zip
   - npm run build -- --kibana-version 5.6.9
