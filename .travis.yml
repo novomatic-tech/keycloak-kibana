@@ -8,7 +8,6 @@ before_install:
 
 install:
   - npm install
-  - npm run lint
   - mkdir release
   - npm run build -- --kibana-version 5.4.3
   - mv build/*.zip release/${NAME}-${VERSION}_5.4.3.zip

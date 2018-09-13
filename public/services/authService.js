@@ -1,5 +1,5 @@
 import 'angular-resource';
-import { uiModules } from 'ui/modules';
+import uiModules from 'ui/modules';
 
 uiModules.get('app/keycloak').service('authService', ($http, chrome) => {
   return {
