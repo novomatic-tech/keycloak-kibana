@@ -49,6 +49,10 @@ Kibana version | Plugin version
 
   - Just change the `kibana.version` property in the `package.json` file to your desired Kibana version (it should work with 5.x - 6.2.x)
   - Build and install the plugin
+  
+### Incompatible versions
+
+If compatibility requires major changes in code, the dedicated branch should be created. There is a branch: `kibana-5.3.0` which adds support for kibana `5.3.0`.
 
 ## Configuration
 
