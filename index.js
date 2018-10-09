@@ -43,6 +43,15 @@ const configureBackChannelLogoutEndpoint = (server, basePath) => {
   });
 };
 
+const propagateBearerToken = (server) => {
+    server.ext('onPreHandler', function(request, reply) {
+        if (!request.headers.authorization && request.auth.credentials && request.auth.credentials.accessToken) {
+            request.headers.authorization = `Bearer ${request.auth.credentials.accessToken.token}`;
+        }
+        return reply.continue();
+    });
+};
+
 const configureInsufficientPermissionsResponse = (server, basePath, requiredRoles) => {
   server.ext('onPostAuth', (request, reply) => {
     return isLoginOrLogout(request) ||
@@ -79,6 +88,7 @@ export default function (kibana) {
           })
         }),
         requiredRoles: Joi.array().items(Joi.string()).default([]),
+        propagateBearerToken: Joi.boolean().default(false),
         enabled: Joi.boolean().default(true)
       }).default();
     },
@@ -105,6 +115,9 @@ export default function (kibana) {
         server.auth.strategy('keycloak', 'keycloak', 'required');
         configureBackChannelLogoutEndpoint(server, basePath);
         configureInsufficientPermissionsResponse(server, basePath, keycloakConfig.requiredRoles);
+        if (keycloakConfig.propagateBearerToken) {
+          propagateBearerToken(server);
+        }
       });
     }
   });
