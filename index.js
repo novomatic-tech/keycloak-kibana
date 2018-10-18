@@ -1,17 +1,48 @@
 import yar from 'yar8';
 import keycloak from 'keycloak-hapi';
+import _ from 'lodash';
 import pkg from './package.json';
 
 const KEYCLOAK_CONFIG_PREFIX = 'keycloak';
 const SERVER_CONFIG_PREFIX = 'server';
 
-const isAuthorized = (credentials, requiredRoles) => {
-  for (const requiredRole of requiredRoles) {
-    if (credentials.scope.indexOf(requiredRole) === -1) {
-      return false;
-    }
+const setupRequiredScope = (requiredRoles) => {
+  const scope = {};
+  for (const value of requiredRoles) {
+      if (value === '') {
+        continue;
+      }
+
+      const prefix = value[0];
+      const type = (prefix === '+' ? 'required' : (prefix === '!' ? 'forbidden' : 'selection'));
+      const clean = (type === 'selection' ? value : value.slice(1));
+      scope[type] = scope[type] || [];
+      scope[type].push(clean);
   }
-  return true;
+  return scope;
+};
+
+const validateScope = (credentials, scope, type) => {
+    if (!scope[type]) {
+        return true;
+    }
+    const count = typeof credentials.scope === 'string' ?
+        (scope[type].indexOf(credentials.scope) !== -1 ? 1 : 0) :
+        _.intersection(scope[type], credentials.scope).length;
+    if (type === 'forbidden') {
+        return count === 0;
+    }
+    if (type === 'required') {
+        return count === scope.required.length;
+    }
+    return !!count;
+};
+
+const getAuthorizationFor = (requiredRoles) => {
+  const scope = setupRequiredScope(requiredRoles);
+  return (credentials) => validateScope(credentials, scope, 'required') ||
+      validateScope(credentials, scope, 'selection') ||
+      validateScope(credentials, scope, 'forbidden');
 };
 
 const isLoginOrLogout = (request) => {
@@ -44,7 +75,7 @@ const configureBackChannelLogoutEndpoint = (server, basePath) => {
 };
 
 const propagateBearerToken = (server) => {
-    server.ext('onPreHandler', function(request, reply) {
+    server.ext('onPreHandler', function (request, reply) {
         if (!request.headers.authorization && request.auth.credentials && request.auth.credentials.accessToken) {
             request.headers.authorization = `Bearer ${request.auth.credentials.accessToken.token}`;
         }
@@ -52,14 +83,12 @@ const propagateBearerToken = (server) => {
     });
 };
 
-const configureInsufficientPermissionsResponse = (server, basePath, requiredRoles) => {
-  server.ext('onPostAuth', (request, reply) => {
-    return isLoginOrLogout(request) ||
-    !request.auth.credentials || isAuthorized(request.auth.credentials, requiredRoles)
-      ? reply.continue()
-      : reply('<p>The user has insufficient permissions to access this page. ' +
-              `<a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`);
-  });
+const interceptUnauthorizedRequests = (server, basePath, isAuthorized) => {
+    server.ext('onPostAuth', (request, reply) => {
+        return isLoginOrLogout(request) || !request.auth.credentials || isAuthorized(request.auth.credentials)
+            ? reply.continue()
+            : reply(`<p>The user has insufficient permissions to access this page. <a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`);
+    });
 };
 
 export default function (kibana) {
@@ -69,6 +98,7 @@ export default function (kibana) {
     configPrefix: KEYCLOAK_CONFIG_PREFIX,
     uiExports: {
       chromeNavControls: [`plugins/keycloak-kibana/views/nav_control`]
+      hacks: ['plugins/keycloak-kibana/hack']
     },
     config(Joi) {
       return Joi.object({
@@ -95,8 +125,8 @@ export default function (kibana) {
     init(server) {
       const basePath = server.config().get(SERVER_CONFIG_PREFIX).basePath;
       const keycloakConfig = Object.assign(
-        server.config().get(KEYCLOAK_CONFIG_PREFIX),
-        { basePath, principalConversion, shouldRedirectUnauthenticated }
+          server.config().get(KEYCLOAK_CONFIG_PREFIX),
+          { basePath, principalConversion, shouldRedirectUnauthenticated }
       );
       return server.register({
         register: yar,
@@ -114,7 +144,7 @@ export default function (kibana) {
       }).then(() => {
         server.auth.strategy('keycloak', 'keycloak', 'required');
         configureBackChannelLogoutEndpoint(server, basePath);
-        configureInsufficientPermissionsResponse(server, basePath, keycloakConfig.requiredRoles);
+        interceptUnauthorizedRequests(server, basePath, getAuthorizationFor(keycloakConfig.requiredRoles));
         if (keycloakConfig.propagateBearerToken) {
           propagateBearerToken(server);
         }
