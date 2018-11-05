@@ -1,4 +1,4 @@
-import uiModules from 'ui/modules';
+import { uiModules } from 'ui/modules';
 
 uiModules
     .get('kibana')
@@ -6,7 +6,6 @@ uiModules
         $provide.factory('unauthorizedInterceptor', function ($q) {
             return {
                 'responseError': function (rejection) {
-
                     if (rejection.status === 401) {
                         return window.location.reload(true);
                     }
