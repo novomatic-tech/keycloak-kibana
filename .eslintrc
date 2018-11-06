@@ -1,2 +1,4 @@
 ---
+settings:
+  import/resolver: "@elastic/eslint-import-resolver-kibana"
 extends: "@elastic/eslint-config-kibana"
