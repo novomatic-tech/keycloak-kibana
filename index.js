@@ -25,6 +25,13 @@ const principalConversion = (principal) => {
   return modifiedPrincipal;
 };
 
+const shouldRedirectUnauthenticated = (request) => {
+  return !(request.auth.mode !== 'required'
+    || request.raw.req.url.startsWith('/api/')
+    || request.raw.req.url.startsWith('/elasticsearch/')
+    || request.raw.req.url.startsWith('/es_admin/'));
+};
+
 export default function (kibana) {
   return new kibana.Plugin({
     require: ['elasticsearch', 'kibana'],
@@ -56,7 +63,7 @@ export default function (kibana) {
     },
     init(server) {
       const basePath = server.config().get(SERVER_CONFIG_PREFIX).basePath;
-      const keycloakConfig = Object.assign(server.config().get(KEYCLOAK_CONFIG_PREFIX), { basePath, principalConversion });
+      const keycloakConfig = Object.assign(server.config().get(KEYCLOAK_CONFIG_PREFIX), { basePath, principalConversion, shouldRedirectUnauthenticated });
       return server.register({
         register: yar,
         options: {

@@ -11,14 +11,14 @@ chromeNavControlsRegistry.register(constant({
 }));
 
 uiModules.get('app/keycloak', ['kibana']).controller('keycloakNavController', ($scope, authService, globalNavState) => {
+
   $scope.tooltipContent = (content) => {
     return globalNavState.isOpen() ? undefined : content;
   };
+
   authService.getPrincipal().then(response => {
     $scope.user = response.data;
-  }).catch(response => {
-    if(response.status === 401) {
-      window.location.reload(true);
-    }
+  }).catch(exception => {
+    console.error(exception);
   });
 });
