@@ -63,7 +63,10 @@ export default function (kibana) {
     },
     init(server) {
       const basePath = server.config().get(SERVER_CONFIG_PREFIX).basePath;
-      const keycloakConfig = Object.assign(server.config().get(KEYCLOAK_CONFIG_PREFIX), { basePath, principalConversion, shouldRedirectUnauthenticated });
+      const keycloakConfig = Object.assign(
+        server.config().get(KEYCLOAK_CONFIG_PREFIX),
+        { basePath, principalConversion, shouldRedirectUnauthenticated }
+      );
       return server.register({
         register: yar,
         options: {
@@ -80,9 +83,11 @@ export default function (kibana) {
       }).then(() => {
         server.auth.strategy('keycloak', 'keycloak', 'required');
         server.ext('onPostAuth', (request, reply) => {
-          return isLoginOrLogout(request) || !request.auth.credentials || isAuthorized(request.auth.credentials, keycloakConfig.requiredRoles)
+          return isLoginOrLogout(request) ||
+          !request.auth.credentials || isAuthorized(request.auth.credentials, keycloakConfig.requiredRoles)
             ? reply.continue()
-            : reply(`<p>The user has insufficient permissions to access this page. <a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`);
+            : reply('<p>The user has insufficient permissions to access this page. ' +
+                    `<a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`);
         });
       });
     }
