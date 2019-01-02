@@ -33,6 +33,26 @@ const shouldRedirectUnauthenticated = (request) => {
     || request.raw.req.url.startsWith('/es_admin/'));
 };
 
+const configureBackChannelLogoutEndpoint = (server, basePath) => {
+  server.ext('onPreAuth', (request, reply) => {
+    if (request.url.path === `${basePath || ''}/k_logout` && request.method === 'post') {
+      request.headers['kbn-xsrf'] = 'k_logout';
+      request.headers['kbn-version'] = pkg.kibana.version;
+    }
+    return reply.continue();
+  });
+};
+
+const configureInsufficientPermissionsResponse = (server, basePath, requiredRoles) => {
+  server.ext('onPostAuth', (request, reply) => {
+    return isLoginOrLogout(request) ||
+    !request.auth.credentials || isAuthorized(request.auth.credentials, requiredRoles)
+      ? reply.continue()
+      : reply('<p>The user has insufficient permissions to access this page. ' +
+              `<a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`);
+  });
+};
+
 export default function (kibana) {
   return new kibana.Plugin({
     require: ['elasticsearch', 'kibana'],
@@ -83,20 +103,8 @@ export default function (kibana) {
         });
       }).then(() => {
         server.auth.strategy('keycloak', 'keycloak', 'required');
-        server.ext('onPreAuth', (request, reply) => {
-          if (request.url.path === `${basePath || ''}/k_logout`) {
-            request.headers['kbn-xsrf'] = 'k_logout';
-            request.headers['kbn-version'] = pkg.kibana.version;
-          }
-          return reply.continue();
-        });
-        server.ext('onPostAuth', (request, reply) => {
-          return isLoginOrLogout(request) ||
-          !request.auth.credentials || isAuthorized(request.auth.credentials, keycloakConfig.requiredRoles)
-            ? reply.continue()
-            : reply('<p>The user has insufficient permissions to access this page. ' +
-                    `<a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`);
-        });
+        configureBackChannelLogoutEndpoint(server, basePath);
+        configureInsufficientPermissionsResponse(server, basePath, keycloakConfig.requiredRoles);
       });
     }
   });
