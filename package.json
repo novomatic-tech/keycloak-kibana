@@ -1,6 +1,6 @@
 {
   "name": "keycloak-kibana",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "A Keycloak authorization plugin for Kibana",
   "main": "index.js",
   "kibana": {
@@ -37,9 +37,9 @@
   "dependencies": {
     "angular-resource": "1.4.9",
     "boom": "^7.2.0",
-    "keycloak-hapi": "1.0.3",
+    "keycloak-hapi": "^1.1.0",
     "lodash": "^4.17.4",
     "url-join": "^4.0.0",
-    "yar": "^8.1.0"
+    "yar8": "^8.2.0"
   }
 }

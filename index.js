@@ -1,5 +1,6 @@
-import yar from 'yar';
+import yar from 'yar8';
 import keycloak from 'keycloak-hapi';
+import pkg from './package.json';
 
 const KEYCLOAK_CONFIG_PREFIX = 'keycloak';
 const SERVER_CONFIG_PREFIX = 'server';
@@ -82,6 +83,13 @@ export default function (kibana) {
         });
       }).then(() => {
         server.auth.strategy('keycloak', 'keycloak', 'required');
+        server.ext('onPreAuth', (request, reply) => {
+          if (request.url.path === `${basePath || ''}/k_logout`) {
+            request.headers['kbn-xsrf'] = 'k_logout';
+            request.headers['kbn-version'] = pkg.kibana.version;
+          }
+          return reply.continue();
+        });
         server.ext('onPostAuth', (request, reply) => {
           return isLoginOrLogout(request) ||
           !request.auth.credentials || isAuthorized(request.auth.credentials, keycloakConfig.requiredRoles)
