@@ -1,5 +1,6 @@
-import yar from 'yar';
+import yar from 'yar8';
 import keycloak from 'keycloak-hapi';
+import pkg from './package.json';
 
 const KEYCLOAK_CONFIG_PREFIX = 'keycloak';
 const SERVER_CONFIG_PREFIX = 'server';
@@ -30,6 +31,26 @@ const shouldRedirectUnauthenticated = (request) => {
     || request.raw.req.url.startsWith('/api/')
     || request.raw.req.url.startsWith('/elasticsearch/')
     || request.raw.req.url.startsWith('/es_admin/'));
+};
+
+const configureBackChannelLogoutEndpoint = (server, basePath) => {
+  server.ext('onPreAuth', (request, reply) => {
+    if (request.url.path === `${basePath || ''}/k_logout` && request.method === 'post') {
+      request.headers['kbn-xsrf'] = 'k_logout';
+      request.headers['kbn-version'] = pkg.kibana.version;
+    }
+    return reply.continue();
+  });
+};
+
+const configureInsufficientPermissionsResponse = (server, basePath, requiredRoles) => {
+  server.ext('onPostAuth', (request, reply) => {
+    return isLoginOrLogout(request) ||
+    !request.auth.credentials || isAuthorized(request.auth.credentials, requiredRoles)
+      ? reply.continue()
+      : reply('<p>The user has insufficient permissions to access this page. ' +
+              `<a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`);
+  });
 };
 
 export default function (kibana) {
@@ -82,13 +103,8 @@ export default function (kibana) {
         });
       }).then(() => {
         server.auth.strategy('keycloak', 'keycloak', 'required');
-        server.ext('onPostAuth', (request, reply) => {
-          return isLoginOrLogout(request) ||
-          !request.auth.credentials || isAuthorized(request.auth.credentials, keycloakConfig.requiredRoles)
-            ? reply.continue()
-            : reply('<p>The user has insufficient permissions to access this page. ' +
-                    `<a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`);
-        });
+        configureBackChannelLogoutEndpoint(server, basePath);
+        configureInsufficientPermissionsResponse(server, basePath, keycloakConfig.requiredRoles);
       });
     }
   });
