@@ -4,6 +4,21 @@
   "requiredCredentials": [
     "password"
   ],
+  "roles": {
+    "client": {
+      "kibana": [
+        { "name": "discover" },
+        { "name": "view-visualizations" },
+        { "name": "manage-visualizations" },
+        { "name": "view-dashboards" },
+        { "name": "manage-dashboards" },
+        { "name": "view-searches" },
+        { "name": "manage-searches" },
+        { "name": "use-timelion" },
+        { "name": "use-dev-tools" }
+      ]
+    }
+  },
   "users": [
     {
       "username": "admin",
@@ -25,17 +40,64 @@
       }
     },
     {
-      "username": "trice",
+      "username": "user1",
+      "firstName": "Lady",
+      "lastName": "Gaga",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "user1"
+        }
+      ],
+      "groups": [ "Read-only" ],
+      "attributes": {
+        "country": "IT"
+      },
+      "clientRoles": {
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      }
+    },
+    {
+      "username": "user2",
       "firstName": "Travis",
       "lastName": "Rice",
       "enabled": true,
       "credentials": [
         {
           "type": "password",
-          "value": "trice"
+          "value": "user2"
         }
       ],
-      "groups": [ "Report Viewer" ],
+      "attributes": {
+        "country": "US"
+      },
+      "groups": [ "Standard user" ],
+      "clientRoles": {
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      }
+    },
+    {
+      "username": "user3",
+      "firstName": "Bradley",
+      "lastName": "Cooper",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "user3"
+        }
+      ],
+      "attributes": {
+        "country": "CA"
+      },
+      "groups": [ "Advanced user" ],
       "clientRoles": {
         "account": [
           "view-profile",
@@ -47,11 +109,55 @@
   "groups": [
     {
       "name": "Administrator",
-      "path": "/Administrator"
+      "path": "/Administrator",
+      "clientRoles": {
+        "kibana": [
+          "discover",
+          "view-dashboards",
+          "manage-dashboards",
+          "view-visualizations",
+          "manage-visualizations",
+          "view-searches",
+          "manage-searches",
+          "use-timelion",
+          "use-dev-tools",
+          "manage-kibana"
+        ]
+      }
     },
     {
-      "name": "Report Viewer",
-      "path": "/Report Viewer"
+      "name": "Advanced user",
+      "path": "/Advanced user",
+      "clientRoles": {
+        "kibana": [
+          "discover",
+          "view-dashboards",
+          "manage-dashboards",
+          "view-visualizations",
+          "manage-visualizations",
+          "view-searches",
+          "manage-searches"
+        ]
+      }
+    },
+    {
+      "name": "Standard user",
+      "path": "/Standard user",
+      "clientRoles": {
+        "kibana": [
+          "view-dashboards",
+          "manage-dashboards"
+        ]
+      }
+    },
+    {
+      "name": "Read-only",
+      "path": "/Read-only",
+      "clientRoles": {
+        "kibana": [
+          "view-dashboards"
+        ]
+      }
     }
   ],
   "clients": [
@@ -161,6 +267,20 @@
             "id.token.claim": "true",
             "access.token.claim": "false",
             "claim.name": "email",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "country",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "false",
+            "user.attribute": "country",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "country",
             "jsonType.label": "String"
           }
         }

@@ -5,10 +5,16 @@ import RouteAuthorization from "./RouteAuthorization";
 import NavigationAuthorization from "./NavigationAuthorization";
 import PrincipalProvider from "./PrincipalProvider";
 import authorizationRules from "./authorizationRules";
+import DashboardAppDecorator from "./DashboardAppDecorator";
+
 
 uiModules.get('kibana', ['ngRoute', 'react'])
     .decorator('appSwitcherDirective', AppSwitcherDecorator);
 //.decorator('dashboardListingDirective', overriddenReactDirective(DashboardListing));
+
+
+uiModules.get('app/dashboard')
+    .decorator('dashboardAppDirective', DashboardAppDecorator);
 
 uiModules.get('app/keycloak', ['kibana'])
     .constant('authorizationRules', authorizationRules)
