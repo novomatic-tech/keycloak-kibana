@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import {MANAGE_DASHBOARDS, MANAGE_VISUALIZATIONS, MANAGE_KIBANA} from "./authz/roles";
+import {MANAGE_DASHBOARDS, MANAGE_VISUALIZATIONS, MANAGE_KIBANA, MANAGE_SEARCHES, VIEW_SEARCHES} from "./authz/roles";
 
 window.onKibanaPrincipalUpdated = function(principal) {
     const manageDashboardsControls = [
@@ -19,6 +19,16 @@ window.onKibanaPrincipalUpdated = function(principal) {
     const manageKibanaControls = [
         'saved-object-finder button.kuiButton'
     ];
+    const viewSearchesControls = [
+        '[data-test-subj=discoverOpenButton]',
+        '[data-test-subj=discoverShareButton]',
+        '[data-test-subj=visualizeSelectSearch] .wizard-column--large',
+        '[data-test-subj=addSavedSearchTab]'
+    ];
+    const manageSearchesControls = [
+        '[data-test-subj=discoverSaveButton]'
+    ];
+
     let elementsToDisable = [];
     if (!principal.scope.includes(MANAGE_DASHBOARDS)) {
         elementsToDisable = elementsToDisable.concat(manageDashboardsControls);
@@ -29,6 +39,13 @@ window.onKibanaPrincipalUpdated = function(principal) {
     if (!principal.scope.includes(MANAGE_KIBANA)) {
         elementsToDisable = elementsToDisable.concat(manageKibanaControls);
     }
-    const style = $(`<style>${elementsToDisable.join(', ')} { display: none; }</style>`);
+    if (!principal.scope.includes(VIEW_SEARCHES)) {
+        elementsToDisable = elementsToDisable.concat(viewSearchesControls);
+    }
+    if (!principal.scope.includes(MANAGE_SEARCHES)) {
+        elementsToDisable = elementsToDisable.concat(manageSearchesControls);
+    }
+
+    const style = $(`<style>${elementsToDisable.join(', ')} { display: none !important;  }</style>`);
     $('head').append(style);
 };

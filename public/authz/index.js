@@ -6,11 +6,13 @@ import NavigationAuthorization from "./NavigationAuthorization";
 import PrincipalProvider from "./PrincipalProvider";
 import authorizationRules from "./authorizationRules";
 import DashboardAppDecorator from "./DashboardAppDecorator";
+import overriddenReactDirective from "./overriddenReactDirective";
+import {DashboardListing} from "./DashboardListing";
 
 
 uiModules.get('kibana', ['ngRoute', 'react'])
-    .decorator('appSwitcherDirective', AppSwitcherDecorator);
-//.decorator('dashboardListingDirective', overriddenReactDirective(DashboardListing));
+    .decorator('appSwitcherDirective', AppSwitcherDecorator)
+    .decorator('dashboardListingDirective', overriddenReactDirective(DashboardListing));
 
 
 uiModules.get('app/dashboard')

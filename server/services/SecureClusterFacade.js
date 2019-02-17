@@ -8,10 +8,6 @@ export class SecureClusterFacade {
     }
 
     async callWithRequest(req = {}, endpoint, clientParams = {}, options = {}) {
-
-        console.log("PRINCIPAL:");
-        console.log(req.getPrincipal());
-
         let callWithRequest = this._cluster.callWithRequest;
         const rule = _.find(this._authRules, rule => rule.matches(req, endpoint, clientParams, options));
         if (rule) {
