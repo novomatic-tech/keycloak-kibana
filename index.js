@@ -5,6 +5,7 @@ import {SecureClusterFacade} from "./server/services/SecureClusterFacade";
 import authRules from "./server/services/authRules";
 import Principal from "./server/services/Principal";
 import pkg from './package.json';
+import configurePermissionsRoutes from "./server/routes/permissions";
 
 const KEYCLOAK_CONFIG_PREFIX = 'keycloak';
 const SERVER_CONFIG_PREFIX = 'server';
@@ -198,6 +199,7 @@ export default function (kibana) {
                 if (keycloakConfig.propagateBearerToken) {
                     propagateBearerToken(server);
                 }
+                configurePermissionsRoutes(server);
             });
         }
     });

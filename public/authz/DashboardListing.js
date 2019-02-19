@@ -20,7 +20,16 @@ import {
     EuiText,
     EuiTextColor,
     EuiEmptyPrompt,
+    EuiFieldText,
+    EuiModal,
+    EuiModalBody,
+    EuiModalFooter,
+    EuiModalHeader,
+    EuiModalHeaderTitle,
+    EuiComboBox,
+    EuiIcon
 } from '@elastic/eui';
+import ShareDashboardModal from "./ShareDashboardModal";
 
 const DashboardConstants = {
     ADD_VISUALIZATION_TO_DASHBOARD_MODE_PARAM: 'addToDashboard',
@@ -49,10 +58,11 @@ export class DashboardListing extends React.Component {
             hasInitialFetchReturned: false,
             isFetchingItems: false,
             showDeleteModal: false,
+            showShareModal: false,
             showLimitError: false,
             filter: this.props.initialFilter,
             dashboards: [],
-            selectedIds: [],
+            selectedItem: null,
             page: 0,
             perPage: 20,
         };
@@ -99,7 +109,7 @@ export class DashboardListing extends React.Component {
 
     deleteSelectedItems = async () => {
         try {
-            await this.props.delete(this.state.selectedIds);
+            await this.props.delete([this.state.selectedItem.id]);
         } catch (error) {
             toastNotifications.addDanger({
                 title: `Unable to delete dashboard(s)`,
@@ -107,9 +117,7 @@ export class DashboardListing extends React.Component {
             });
         }
         this.fetchItems();
-        this.setState({
-            selectedIds: []
-        });
+        this.setState({ selectedItem: null });
         this.closeDeleteModal();
     }
 
@@ -119,6 +127,14 @@ export class DashboardListing extends React.Component {
 
     openDeleteModal = () => {
         this.setState({ showDeleteModal: true });
+    };
+
+    closeShareModal = () => {
+        this.setState({ showShareModal: false });
+    };
+
+    openShareModal = () => {
+        this.setState({ showShareModal: true });
     };
 
     onTableChange = ({ page, sort = {} }) => {
@@ -185,7 +201,7 @@ export class DashboardListing extends React.Component {
         return (
             <EuiOverlayMask>
                 <EuiConfirmModal
-                    title="Delete selected dashboards?"
+                    title={`Are you sure want to delete ${this.state.selectedItem.title}?`}
                     onCancel={this.closeDeleteModal}
                     onConfirm={this.deleteSelectedItems}
                     cancelButtonText="Cancel"
@@ -196,6 +212,10 @@ export class DashboardListing extends React.Component {
                 </EuiConfirmModal>
             </EuiOverlayMask>
         );
+    }
+
+    renderShareModal() {
+        return (<ShareDashboardModal onClose={this.closeShareModal} getUsers={this.props.getUsers}/>);
     }
 
     renderListingLimitWarning() {
@@ -251,9 +271,6 @@ export class DashboardListing extends React.Component {
                             <p>
                                 You can combine data views from any Kibana app into one dashboard and see everything in one place.
                             </p>
-                            <p>
-                                New to Kibana? <EuiLink href="#/home/tutorial_directory/sampleData">Install some sample data</EuiLink> to take a test drive.
-                            </p>
                         </Fragment>
                     }
                     actions={
@@ -261,37 +278,18 @@ export class DashboardListing extends React.Component {
                             href={`#${DashboardConstants.CREATE_NEW_DASHBOARD_URL}`}
                             fill
                             iconType="plusInCircle"
-                            data-test-subj="createDashboardPromptButton"
-                        >
+                            data-test-subj="createDashboardPromptButton">
                             Create new dashboard
                         </EuiButton>
                     }
                 />
             </div>
         );
-
     }
 
     renderSearchBar() {
-        let deleteBtn;
-        if (this.state.selectedIds.length > 0) {
-            deleteBtn = (
-                <EuiFlexItem grow={false}>
-                    <EuiButton
-                        color="danger"
-                        onClick={this.openDeleteModal}
-                        data-test-subj="deleteSelectedDashboards"
-                        key="delete"
-                    >
-                        Delete selected
-                    </EuiButton>
-                </EuiFlexItem>
-            );
-        }
-
         return (
             <EuiFlexGroup>
-                {deleteBtn}
                 <EuiFlexItem grow={true}>
                     <EuiFieldSearch
                         aria-label="Filter dashboards"
@@ -339,22 +337,46 @@ export class DashboardListing extends React.Component {
                 sortable: true,
             }
         ];
+
+        const principal = this.props.principal;
+        const onlyWhenUserCanManage = (record) => {
+            return principal.scope.includes('manage-kibana') ||
+                (principal.scope.includes('manage-dashboards') &&
+                record.permissions.includes('manage'))
+        };
+
+        const deleteItem = (record) => {
+            this.setState({ selectedItem: record });
+            this.openDeleteModal();
+        };
+
+        const shareItem = (record) => {
+            this.setState({ selectedItem: record });
+            this.openShareModal();
+        };
+
         if (!this.props.hideWriteControls) {
+            const editAction = {
+                enabled: onlyWhenUserCanManage,
+                render: (item) => (
+                    <EuiLink href={`#${createDashboardEditUrl(item.id)}?_a=(viewMode:edit)`}><EuiIcon type="pencil" /> Edit</EuiLink>
+                )
+            };
+            const shareAction = {
+                enabled: onlyWhenUserCanManage,
+                render: (item) => (
+                    <EuiLink onClick={() => shareItem(item)}><EuiIcon type="share" /> Share</EuiLink>
+                )
+            };
+            const deleteAction = {
+                enabled: onlyWhenUserCanManage,
+                render: (item) => (
+                    <EuiLink onClick={() => deleteItem(item)}><EuiIcon type="trash" /> Delete</EuiLink>
+                )
+            };
             tableColumns.push({
                 name: 'Actions',
-                actions: [
-                    {
-                        render: (record) => {
-                            return (
-                                <EuiLink
-                                    href={`#${createDashboardEditUrl(record.id)}?_a=(viewMode:edit)`}
-                                >
-                                    Edit
-                                </EuiLink>
-                            );
-                        }
-                    }
-                ]
+                actions: [editAction, shareAction, deleteAction]
             });
         }
         const pagination = {
@@ -363,13 +385,7 @@ export class DashboardListing extends React.Component {
             totalItemCount: this.state.dashboards.length,
             pageSizeOptions: [10, 20, 50],
         };
-        const selection = {
-            onSelectionChange: (selection) => {
-                this.setState({
-                    selectedIds: selection.map(item => { return item.id; })
-                });
-            }
-        };
+
         const sorting = {};
         if (this.state.sortField) {
             sorting.sort = {
@@ -385,7 +401,6 @@ export class DashboardListing extends React.Component {
                 items={items}
                 loading={this.state.isFetchingItems}
                 columns={tableColumns}
-                selection={selection}
                 noItemsMessage={this.renderNoResultsMessage()}
                 pagination={pagination}
                 sorting={sorting}
@@ -419,6 +434,7 @@ export class DashboardListing extends React.Component {
         return (
             <div>
                 {this.state.showDeleteModal && this.renderConfirmDeleteModal()}
+                {this.state.showShareModal && this.renderShareModal()}
 
                 <EuiFlexGroup justifyContent="spaceBetween" alignItems="flexEnd" data-test-subj="top-nav">
                     <EuiFlexItem grow={false}>
@@ -475,6 +491,7 @@ DashboardListing.propTypes = {
     listingLimit: PropTypes.number.isRequired,
     hideWriteControls: PropTypes.bool.isRequired,
     initialFilter: PropTypes.string,
+    principal: PropTypes.object,
 };
 
 DashboardListing.defaultProps = {

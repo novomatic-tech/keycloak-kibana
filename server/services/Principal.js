@@ -6,7 +6,12 @@ export default class Principal {
         this._credentials = credentials;
         this._aclId = credentials.accessToken.content[ownerAttribute] || credentials.accessToken.content.sub;
     }
-
+    hasRole(role) {
+        return this._credentials.scope.includes(role);
+    }
+    getId() {
+        return this._aclId;
+    }
     getPermissionsFor(document) {
         const documentPermissions = _.get(document, `acl.permissions`, {});
         const permissions = Object.keys(documentPermissions).filter(p => this._hasPermission(document, p));
