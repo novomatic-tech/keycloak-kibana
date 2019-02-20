@@ -1,7 +1,11 @@
-import { kfetch } from 'ui/kfetch';
-
 export default class UserProvider {
-    async getUsers(filter = null) {
-        return kfetch({ method: 'GET', pathname: '/api/users', query: { filter } });
+
+    constructor($http) {
+        this._httpClient = $http;
+    }
+
+    getUsers = (filter = null) => {
+        return this._httpClient({ method: 'GET', url: '/api/users', params: { filter } })
+            .then(resp => resp.data);
     }
 }

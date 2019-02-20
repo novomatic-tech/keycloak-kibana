@@ -17,6 +17,10 @@ export default class Principal {
         const permissions = Object.keys(documentPermissions).filter(p => this._hasPermission(document, p));
         return permissions;
     }
+    can(action, document) {
+        const permissions = _.get(document, `acl.permissions.${action}`, []);
+        return permissions === 'all' || permissions.includes(this._aclId);
+    }
     createNewAcl() {
         return {
             owner: this._aclId,

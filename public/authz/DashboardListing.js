@@ -190,18 +190,14 @@ export class DashboardListing extends React.Component {
     }
 
     hasNoDashboards() {
-        if (!this.state.isFetchingItems && this.state.dashboards.length === 0 && !this.state.filter) {
-            return true;
-        }
-
-        return false;
+        return !this.state.isFetchingItems && this.state.dashboards.length === 0 && !this.state.filter;
     }
 
     renderConfirmDeleteModal() {
         return (
             <EuiOverlayMask>
                 <EuiConfirmModal
-                    title={`Are you sure want to delete ${this.state.selectedItem.title}?`}
+                    title={`Are you sure want to delete ${this.state.selectedItem ? this.state.selectedItem.title : 'selected dashboard'}?`}
                     onCancel={this.closeDeleteModal}
                     onConfirm={this.deleteSelectedItems}
                     cancelButtonText="Cancel"
@@ -215,7 +211,9 @@ export class DashboardListing extends React.Component {
     }
 
     renderShareModal() {
-        return (<ShareDashboardModal onClose={this.closeShareModal} getUsers={this.props.getUsers}/>);
+        return (
+            <ShareDashboardModal {...this.props} dashboard={this.state.selectedItem} onClose={this.closeShareModal}/>
+        );
     }
 
     renderListingLimitWarning() {
@@ -435,7 +433,6 @@ export class DashboardListing extends React.Component {
             <div>
                 {this.state.showDeleteModal && this.renderConfirmDeleteModal()}
                 {this.state.showShareModal && this.renderShareModal()}
-
                 <EuiFlexGroup justifyContent="spaceBetween" alignItems="flexEnd" data-test-subj="top-nav">
                     <EuiFlexItem grow={false}>
                         <EuiTitle size="l">
@@ -444,19 +441,12 @@ export class DashboardListing extends React.Component {
                             </h1>
                         </EuiTitle>
                     </EuiFlexItem>
-
                     {createButton}
-
                 </EuiFlexGroup>
-
                 <EuiSpacer size="m" />
-
                 {this.renderListingLimitWarning()}
-
                 {this.renderSearchBar()}
-
                 <EuiSpacer size="m" />
-
                 {this.renderTable()}
             </div>
         );
@@ -491,7 +481,14 @@ DashboardListing.propTypes = {
     listingLimit: PropTypes.number.isRequired,
     hideWriteControls: PropTypes.bool.isRequired,
     initialFilter: PropTypes.string,
+
+    /* ADDED */
     principal: PropTypes.object,
+    getPermissions: PropTypes.func.isRequired,
+    addPermission: PropTypes.func.isRequired,
+    addPermissionForAll: PropTypes.func.isRequired,
+    revokePermission: PropTypes.func.isRequired,
+    revokePermissionForAll: PropTypes.func.isRequired,
 };
 
 DashboardListing.defaultProps = {

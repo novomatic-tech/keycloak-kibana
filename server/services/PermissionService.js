@@ -11,8 +11,10 @@ const checkPermissionScript = "" +
 const addPermissionScript = "" +
     "def acl = ctx._source.acl ?: ['permissions': [:]];\n" +
     "def permissions = acl.permissions[params.permission] ?: [];\n" +
-    "if (permissions != 'all' && !permissions.contains(params.userId)) {\n" +
-    "    permissions.add(params.userId);\n" +
+    "for (userId in params.userIds) {\n" +
+    "    if (permissions != 'all' && !permissions.contains(userId)) {\n" +
+    "        permissions.add(userId);\n" +
+    "    }\n" +
     "}\n" +
     "acl.permissions[params.permission] = permissions;\n" +
     "ctx._source.acl = acl;\n";
@@ -28,12 +30,14 @@ const revokePermissionScript = "" +
     "if (permissions == 'all') {\n" +
     "    throw new Exception('conflict');\n" +
     "}\n" +
-    "if (acl.owner == params.userId) {\n" +
-    "    throw new Exception('own_removal');\n" +
-    "}\n" +
-    "def idx = permissions.indexOf(params.userId);\n" +
-    "if (idx != -1) {\n" +
-    "   permissions.remove(idx);\n" +
+    "for (userId in params.userIds) {\n" +
+    "    if (acl.owner == userId) {\n" +
+    "        throw new Exception('own_removal');\n" +
+    "    }\n" +
+    "    def idx = permissions.indexOf(userId);\n" +
+    "    if (idx != -1) {\n" +
+    "       permissions.remove(idx);\n" +
+    "    }\n" +
     "}\n" +
     "acl.permissions[params.permission] = permissions;\n" +
     "ctx._source.acl = acl;\n";
@@ -56,24 +60,68 @@ export default class PermissionService {
         this._principal = principal;
     }
 
-    async addPermission(documentId, permission, userId) {
-        return await this._addPermission(documentId, permission, addPermissionScript, userId);
+    async getPermissions(documentId) {
+        const response = await this._cluster.callWithInternalUser('get', {
+            id: documentId,
+            type: this._type,
+            index: this._index,
+            ignore: [404]
+        });
+        const docNotFound = response.found === false;
+        const indexNotFound = response.status === 404;
+        if (indexNotFound || docNotFound) {
+            throw Boom.notFound('Requested resource could not be found');
+        }
+        const document = response._source;
+        if (!this._principal.hasRole('manage-kibana') && !this._principal.can('manage', document)) {
+            throw Boom.forbidden('The user is not authorized to get permissions for the resource');
+        }
+
+        const {owner, permissions} = document.acl;
+        const userPermissionsMap = new Map();
+        const all = [];
+        _.keys(permissions).forEach(permission => {
+            if (permissions[permission] === 'all') {
+                all.push(permission);
+            } else {
+                permissions[permission].forEach(userId => {
+                    let userPermissions = userPermissionsMap.get(userId);
+                    if (!userPermissions) {
+                        userPermissions = [];
+                        userPermissionsMap.set(userId, userPermissions);
+                    }
+                    userPermissions.push(permission);
+                })
+            }
+        });
+        const users = Array.from(userPermissionsMap.keys()).map(id => {
+            const user = { id, permissions: userPermissionsMap.get(id) };
+            if (user.id === owner) {
+                user.owner = true;
+            }
+            return user;
+        });
+        return { users: _.sortBy(users, u => u.id), all };
+    }
+
+    async addPermission(documentId, permission, userIds) {
+        return await this._addPermission(documentId, permission, addPermissionScript, userIds);
     }
 
     async addPermissionForAll(documentId, permission) {
         return await this._addPermission(documentId, permission, addPermissionForAllScript);
     }
 
-    async revokePermission(documentId, permission, userId) {
-        return await this._revokePermission(documentId, permission, revokePermissionScript, userId);
+    async revokePermission(documentId, permission, userIds) {
+        return await this._revokePermission(documentId, permission, revokePermissionScript, userIds);
     }
 
     async revokePermissionForAll(documentId, permission) {
         return await this._revokePermission(documentId, permission, revokePermissionForAllScript);
     }
 
-    async _addPermission(documentId, permission, script, userId = null) {
-        const updateParams = this._getPermissionUpdateScriptParams({documentId, permission, userId, script});
+    async _addPermission(documentId, permission, script, userIds = null) {
+        const updateParams = this._getPermissionUpdateScriptParams({documentId, permission, userIds, script});
         try {
             await this._cluster.callWithInternalUser('update', updateParams);
         } catch(e) {
@@ -86,8 +134,8 @@ export default class PermissionService {
         }
     }
 
-    async _revokePermission(documentId, permission, script, userId = null) {
-        const updateParams = this._getPermissionUpdateScriptParams({documentId, permission, userId, script});
+    async _revokePermission(documentId, permission, script, userIds = null) {
+        const updateParams = this._getPermissionUpdateScriptParams({documentId, permission, userIds, script});
         try {
             await this._cluster.callWithInternalUser('update', updateParams);
         } catch (e) {
@@ -104,11 +152,11 @@ export default class PermissionService {
         }
     }
 
-    _getPermissionUpdateScriptParams({ documentId, permission, userId, script }) {
+    _getPermissionUpdateScriptParams({ documentId, permission, userIds, script }) {
         let actualScript = script;
         const scriptParams = { permission };
-        if (userId) {
-            scriptParams.userId = userId;
+        if (userIds) {
+            scriptParams.userIds = userIds;
         }
         if (!this._principal.hasRole('manage-kibana')) {
             actualScript = checkPermissionScript + script;

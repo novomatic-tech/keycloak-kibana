@@ -9,6 +9,7 @@ import authorizationRules from "./authorizationRules";
 import DashboardAppDecorator from "./DashboardAppDecorator";
 import overriddenReactDirective from "./overriddenReactDirective";
 import {DashboardListing} from "./DashboardListing";
+import DashboardPermissions from "./DashboardPermissions";
 
 uiModules.get('kibana', ['ngRoute', 'react'])
     .decorator('appSwitcherDirective', AppSwitcherDecorator)
@@ -23,6 +24,7 @@ uiModules.get('app/keycloak', ['kibana'])
     .service('navigationAuthorization', NavigationAuthorization)
     .service('routeAuthorization', RouteAuthorization)
     .service('principalProvider', PrincipalProvider)
+    .service('dashboardPermissions', DashboardPermissions)
     .service('userProvider', UserProvider)
     .run(($rootScope, navigationHandler, $route, navigationAuthorization, routeAuthorization) => {
         navigationHandler.initialize();
