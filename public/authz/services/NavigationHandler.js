@@ -1,5 +1,5 @@
 import _ from "lodash";
-import {NAVIGATION_UPDATE} from "./events";
+import {NAVIGATION_UPDATE} from "../constants/EventTypes";
 
 export default class NavigationHandler {
 

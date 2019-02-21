@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   keycloak:
-    image: jboss/keycloak:4.4.0.Final
+    image: jboss/keycloak:4.5.0.Final
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
@@ -23,4 +23,3 @@ services:
       ES_JAVA_OPTS: -Xms512m -Xmx512m
     ports:
       - "9200:9200"
-

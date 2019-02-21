@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import {MANAGE_DASHBOARDS, MANAGE_VISUALIZATIONS, MANAGE_KIBANA, MANAGE_SEARCHES, VIEW_SEARCHES} from "./authz/roles";
+import Roles from "./authz/constants/Roles";
 
 window.onKibanaPrincipalUpdated = function(principal) {
     const manageDashboardsControls = [
@@ -30,22 +30,23 @@ window.onKibanaPrincipalUpdated = function(principal) {
     ];
 
     let elementsToDisable = [];
-    if (!principal.scope.includes(MANAGE_DASHBOARDS)) {
+    if (!principal.scope.includes(Roles.MANAGE_DASHBOARDS)) {
         elementsToDisable = elementsToDisable.concat(manageDashboardsControls);
     }
-    if (!principal.scope.includes(MANAGE_VISUALIZATIONS)) {
+    if (!principal.scope.includes(Roles.MANAGE_VISUALIZATIONS)) {
         elementsToDisable = elementsToDisable.concat(manageVisualizationControls);
     }
-    if (!principal.scope.includes(MANAGE_KIBANA)) {
+    if (!principal.scope.includes(Roles.MANAGE_KIBANA)) {
         elementsToDisable = elementsToDisable.concat(manageKibanaControls);
     }
-    if (!principal.scope.includes(VIEW_SEARCHES)) {
+    if (!principal.scope.includes(Roles.VIEW_SEARCHES)) {
         elementsToDisable = elementsToDisable.concat(viewSearchesControls);
     }
-    if (!principal.scope.includes(MANAGE_SEARCHES)) {
+    if (!principal.scope.includes(Roles.MANAGE_SEARCHES)) {
         elementsToDisable = elementsToDisable.concat(manageSearchesControls);
     }
 
+    // TODO: make it updatable
     const style = $(`<style>${elementsToDisable.join(', ')} { display: none !important;  }</style>`);
     $('head').append(style);
 };

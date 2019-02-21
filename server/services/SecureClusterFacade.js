@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import ClusterDecorator from "./ClusterDecorator";
+import SavedObjectAction from "./SavedObjectAction";
 
 export class SecureClusterFacade {
 
@@ -8,12 +10,34 @@ export class SecureClusterFacade {
     }
 
     async callWithRequest(req = {}, endpoint, clientParams = {}, options = {}) {
-        let callWithRequest = this._cluster.callWithRequest;
-        const rule = _.find(this._authRules, rule => rule.matches(req, endpoint, clientParams, options));
+        const cluster = new ClusterDecorator(this._cluster);
+        const action = new SavedObjectAction({
+            request: req,
+            principal: req.getPrincipal(),
+            cluster,
+            clusterRequest: {
+                endpoint,
+                clientParams,
+                options
+            }
+        });
+        const rule = _.find(this._authRules, rule => rule.matches(action));
         if (rule) {
-            callWithRequest = (...args) => rule.callWithRequest(this._cluster.callWithRequest, ...args);
+            return await rule.process(cluster, action);
         }
-        const response = await callWithRequest(req, endpoint, clientParams, options);
-        return response;
+        throw Boom.forbidden('The user is not authorized to perform this operation.');
     }
 }
+
+export const secureSavedObjects = (server, authRules) => {
+    const { savedObjects } = server;
+    savedObjects.setScopedSavedObjectsClientFactory(({ request }) => {
+        const secureCluster = new SecureClusterFacade({
+            cluster: server.plugins.elasticsearch.getCluster('admin'),
+            authRules
+        });
+        const secureCallCluster = (...args) => secureCluster.callWithRequest(request, ...args);
+        const secureRepository = savedObjects.getSavedObjectsRepository(secureCallCluster);
+        return new savedObjects.SavedObjectsClient(secureRepository);
+    });
+};

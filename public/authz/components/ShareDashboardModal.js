@@ -36,10 +36,11 @@ import {
     EuiHighlight,
     EuiCheckbox
 } from '@elastic/eui';
+import Permissions from "../constants/Permissions";
 
 const ANYONE = { label: 'Anyone', value: '' };
 
-class PermissionSelectBox extends React.Component {
+class PermissionSelectBox extends React.Component { // TODO: make it pretty!
 
     constructor(props) {
         super(props);
@@ -123,16 +124,12 @@ class PermissionSelectBox extends React.Component {
     }
 }
 
-
 export default class ShareDashboardModal extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            availablePermissions: [
-                { label: 'Can view', value: 'view', icon: 'eye' },
-                { label: 'Can manage', value: 'manage', icon: 'pencil' }
-            ],
+            availablePermissions: Permissions.listAvailable(),
             availableUsers: [],
             selectedUsers: [],
             isFetchingUsers: false,
@@ -152,8 +149,8 @@ export default class ShareDashboardModal extends React.Component {
                 value: u.username,
                 userData: u
             }
-        }).concat([ANYONE]);
-        this.setState({ isFetchingUsers: false, availableUsers });
+        });
+        this.setState({ isFetchingUsers: false, availableUsers: [ANYONE].concat(availableUsers) });
     }, 300);
 
     fetchUsers = (userFilter) => {
@@ -210,7 +207,7 @@ export default class ShareDashboardModal extends React.Component {
             console.warn(error);
             toastNotifications.addDanger({
                 title: `Unable to assign new permissions for the dashboard`,
-                text: `${error}`,
+                text: `${error.statusText}`,
             });
         });
     };
@@ -227,7 +224,7 @@ export default class ShareDashboardModal extends React.Component {
             console.warn(error);
             toastNotifications.addDanger({
                 title: `Unable to revoke permissions for the dashboard`,
-                text: `${error}`,
+                text: `${error.statusText}`,
             });
         });
     };
@@ -255,12 +252,24 @@ export default class ShareDashboardModal extends React.Component {
         this.setState({ advancedView: true });
     };
 
+
+    renderUserName = (user) => (
+        <span>{user.id || 'Anyone'}<span style={{color: '#aaa'}}>{user.you ? ' (you)' : ''}</span></span>
+    );
+
+    renderUserIcon = (user) => (
+        <span style={{background: '#eeeeee', padding: '5px', marginRight: '5px'}}>
+            <EuiIcon size="m" type={user.id ? 'user' : 'asterisk'}/>
+        </span>
+    );
+
     renderPermissionList = () => {
         const { users, all } = this.state.permissions;
         let actualUsers = users;
         if (all.length > 0) {
-            actualUsers = [{ permissions: all }].concat(users);
+            actualUsers = [{permissions: all}].concat(users);
         }
+
         const columns = [
             {
                 field: 'name',
@@ -268,9 +277,8 @@ export default class ShareDashboardModal extends React.Component {
                 render: (field, user) => (
                     <div>
                         <EuiText style={{fontSize: '0.9em'}}>
-                            <span style={{background: '#eeeeee', padding: '5px', marginRight: '5px'}}>
-                                <EuiIcon size="m" type={user.id ? 'user' : 'asterisk'}/></span>
-                                {user.id || 'Anyone'}
+                            {this.renderUserIcon(user)}
+                            {this.renderUserName(user)}
                         </EuiText>
                     </div>
                 )

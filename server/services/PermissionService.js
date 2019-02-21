@@ -1,6 +1,9 @@
 import _ from 'lodash';
 import Boom from 'boom';
+import Roles from "../../public/authz/constants/Roles";
+import Permissions from "../../public/authz/constants/Permissions";
 
+// TODO: refactor remote groovy scripts approach into local javascript and optimistic concurrency control.
 const checkPermissionScript = "" +
     "def permissionsToCheck = ctx._source.acl?.permissions ?: [:];\n" +
     "def permList = permissionsToCheck[params.requiredPermission] ?: [];\n" +
@@ -73,7 +76,7 @@ export default class PermissionService {
             throw Boom.notFound('Requested resource could not be found');
         }
         const document = response._source;
-        if (!this._principal.hasRole('manage-kibana') && !this._principal.can('manage', document)) {
+        if (!this._principal.hasRole(Roles.MANAGE_KIBANA) && !this._principal.canManage(document)) {
             throw Boom.forbidden('The user is not authorized to get permissions for the resource');
         }
 
@@ -81,7 +84,7 @@ export default class PermissionService {
         const userPermissionsMap = new Map();
         const all = [];
         _.keys(permissions).forEach(permission => {
-            if (permissions[permission] === 'all') {
+            if (permissions[permission] === Permissions.allKeyword()) {
                 all.push(permission);
             } else {
                 permissions[permission].forEach(userId => {
@@ -98,6 +101,9 @@ export default class PermissionService {
             const user = { id, permissions: userPermissionsMap.get(id) };
             if (user.id === owner) {
                 user.owner = true;
+            }
+            if (user.id === this._principal.getId()) {
+                user.you = true;
             }
             return user;
         });
@@ -123,6 +129,7 @@ export default class PermissionService {
     async _addPermission(documentId, permission, script, userIds = null) {
         const updateParams = this._getPermissionUpdateScriptParams({documentId, permission, userIds, script});
         try {
+            // TODO: the authentication scheme for callWithInteralUser calls should be Bearer (via OAuth's Client Credential flow) rather than Basic.
             await this._cluster.callWithInternalUser('update', updateParams);
         } catch(e) {
             console.warn(e);
@@ -158,10 +165,10 @@ export default class PermissionService {
         if (userIds) {
             scriptParams.userIds = userIds;
         }
-        if (!this._principal.hasRole('manage-kibana')) {
+        if (!this._principal.hasRole(Roles.MANAGE_KIBANA)) {
             actualScript = checkPermissionScript + script;
             scriptParams.principalId = this._principal.getId();
-            scriptParams.requiredPermission = 'manage';
+            scriptParams.requiredPermission = Permissions.MANAGE;
         }
         return {
             index: this._index,

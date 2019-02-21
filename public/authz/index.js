@@ -1,22 +1,27 @@
-import NavigationHandler from "./NavigationHandler";
-import AppSwitcherDecorator from "./AppSwitcherDecorator";
 import {uiModules} from 'ui/modules';
-import RouteAuthorization from "./RouteAuthorization";
-import NavigationAuthorization from "./NavigationAuthorization";
-import PrincipalProvider from "./PrincipalProvider";
-import UserProvider from "./UserProvider";
+
+import NavigationAuthorization from "./services/NavigationAuthorization";
+import PrincipalProvider from "./services/PrincipalProvider";
+import UserProvider from "./services/UserProvider";
+import DashboardPermissions from "./services/DashboardPermissions";
+import NavigationHandler from "./services/NavigationHandler";
+import RouteAuthorization from "./services/RouteAuthorization";
+
+import DashboardAppDecorator from "./decorations/DashboardAppDecorator";
+import AppSwitcherDecorator from "./decorations/AppSwitcherDecorator";
 import authorizationRules from "./authorizationRules";
-import DashboardAppDecorator from "./DashboardAppDecorator";
-import overriddenReactDirective from "./overriddenReactDirective";
-import {DashboardListing} from "./DashboardListing";
-import DashboardPermissions from "./DashboardPermissions";
+import DashboardListingDecorator from "./decorations/DashboardListingDecorator";
+
+const isKibanaApp = () => (window.location.pathname || '').endsWith('/app/kibana');
 
 uiModules.get('kibana', ['ngRoute', 'react'])
-    .decorator('appSwitcherDirective', AppSwitcherDecorator)
-    .decorator('dashboardListingDirective', overriddenReactDirective(DashboardListing));
+    .decorator('appSwitcherDirective', AppSwitcherDecorator);
 
-uiModules.get('app/dashboard')
-    .decorator('dashboardAppDirective', DashboardAppDecorator);
+if (isKibanaApp()) {
+    uiModules.get('app/dashboard')
+        .decorator('dashboardListingDirective', DashboardListingDecorator)
+        .decorator('dashboardAppDirective', DashboardAppDecorator);
+}
 
 uiModules.get('app/keycloak', ['kibana'])
     .constant('authorizationRules', authorizationRules)
@@ -31,4 +36,3 @@ uiModules.get('app/keycloak', ['kibana'])
         navigationAuthorization.initialize();
         routeAuthorization.initialize();
     });
-

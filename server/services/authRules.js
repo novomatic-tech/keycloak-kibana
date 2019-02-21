@@ -1,91 +1,169 @@
 import _ from "lodash";
+import Roles from "../../public/authz/constants/Roles";
+import Permissions from "../../public/authz/constants/Permissions";
 
-const includeSavedObjectsPermissionsInResponse = (req, rawElasticDocs) => {
-    const savedObjects = _.get(req, 'response.source.saved_objects', []);
-    const modifiedSavedObjects = _.zip(savedObjects, rawElasticDocs).map(item => {
-        const permissions = req.getPrincipal().getPermissionsFor(item[1]._source);
-        const savedObject = Object.assign({}, item[0]);
-        savedObject.attributes.permissions = permissions;
-        savedObject.attributes.owner = _.get(item[1]._source, 'acl.owner');
-        return savedObject;
+const includePermissionsInSavedObjects = (principal, docs) => {
+    docs.filter(doc => doc._source.type).forEach(doc => {
+        const permissions = principal.getPermissionsFor(doc._source);
+        const owner = _.get(doc._source, 'acl.owner', null);
+        const attributes = doc._source[doc._source.type];
+        attributes.permissions = permissions;
+        attributes.owner = owner
     });
-    _.set(req, 'response.source.saved_objects', modifiedSavedObjects);
 };
 
-class CreateDashboardRule {
+class AdminRule {
+    constructor({ requiredRole }) {
+        this._requiredRole = requiredRole;
+    }
+    matches(action) {
+        return action.principal.hasRole(this._requiredRole);
+    }
+    async process(cluster, action) {
+        return await cluster.processAction(action);
+    }
+}
 
-    matches(request) {
-        return request.path === '/api/saved_objects/dashboard' &&
-            request.method === 'post';
+class CreateRule {
+
+    constructor({ resourceType, requiredRole, aclEnabled }) {
+        this._resourceType = resourceType;
+        this._requiredRole = requiredRole;
+        this._aclEnabled = aclEnabled;
     }
 
-    async callWithRequest(delegate, req, endpoint, clientParams, options) {
-        clientParams.body.acl = req.getPrincipal().createNewAcl();
-        const response = await delegate(req, endpoint, clientParams, options);
+    matches(action) {
+        return action.creates(this._resourceType);
+    }
+
+    async process(cluster, action) {
+        if (!action.principal.hasRole(this._requiredRole)) {
+            throw Boom.forbidden(`The user has no permissions to create this resource.`);
+        }
+        if (this._aclEnabled) {
+            const {clientParams} = action.clusterRequest;
+            clientParams.body.acl = action.principal.createNewAcl();
+        }
+        return await cluster.processAction(action);
+    }
+}
+
+class DeleteRule {
+
+    constructor({ resourceType, requiredRole, aclEnabled }) {
+        this._resourceType = resourceType;
+        this._requiredRole = requiredRole;
+        this._aclEnabled = aclEnabled;
+    }
+
+    matches(action) {
+        return action.deletes(this._resourceType);
+    }
+
+    async process(cluster, action) {
+        if (!action.principal.hasRole(this._requiredRole)) {
+            throw Boom.forbidden(`The user has no permissions to delete this resource.`);
+        }
+        if (this._aclEnabled) {
+            const {clientParams} = action.clusterRequest;
+            const {id, type, index} = clientParams;
+            const document = await cluster.callWithRequest(action.request, 'get',
+                {id, type, index, ignore: 404}, {});
+
+            if (!action.principal.canManage(document._source)) {
+                throw Boom.forbidden(`The user has no permissions to delete this resource.`);
+            }
+        }
+        return await cluster.processAction(action);
+    }
+}
+
+class UpdateRule {
+
+    constructor({ resourceType, requiredRole, aclEnabled }) {
+        this._resourceType = resourceType;
+        this._requiredRole = requiredRole;
+        this._aclEnabled = aclEnabled;
+    }
+
+    matches(action) {
+        return action.updates(this._resourceType);
+    }
+
+    async process(cluster, action) {
+        if (!action.principal.hasRole(this._requiredRole)) {
+            throw Boom.forbidden(`The user has no permissions to update this resource.`);
+        }
+        if (this._aclEnabled) {
+            const {clientParams} = action.clusterRequest;
+            const {id, type, index} = clientParams;
+            const document = await cluster.callWithRequest(action.request, 'get',
+                {id, type, index, ignore: 404}, {});
+
+            if (!action.principal.canEdit(document._source) &&
+                !action.principal.canManage(document._source)) {
+                throw Boom.forbidden(`The user has no permissions to update this resource.`);
+            }
+            clientParams.body.acl = document.found ? document._source.acl : action.principal.createNewAcl();
+        }
+        return await cluster.processAction(action); // TODO: introduce optimistic concurrency control.
+    }
+}
+
+class FindRule {
+
+    matches(action) {
+        return action.isFind();
+    }
+
+    async process(cluster, action) {
+        const {principal, request} = action;
+        console.log(JSON.stringify(action.clusterRequest, null, 2));
+
+        // TODO: modify query to access only allowed saved objects.
+
+        const response = await cluster.processAction(action);
+        const savedObjects = _.get(response, 'hits.hits', []);
+        includePermissionsInSavedObjects(action.principal, savedObjects);
         return response;
     }
 }
 
-class UpdateDashboardRule {
+class BulkGetRule {
 
-    matches(request) {
-        return request.path.match(/^\/api\/saved_objects\/dashboard\/[a-z0-9\-]+$/) &&
-            request.method === 'post';
+    matches(action) {
+        return action.isBulkGet();
     }
 
-    async callWithRequest(delegate, req, endpoint, clientParams, options) {
-        const {id, type, index} = clientParams;
-        const document = await delegate(req, 'get', { id, type, index, ignore: 404 }, {});
-        clientParams.body.acl = document.found ? document._source.acl : req.getPrincipal().createNewAcl();
-        return await delegate(req, endpoint, clientParams, options);
-    }
-}
-
-class ListDashboardRule {
-
-    matches(request) {
-        return request.path === '/api/saved_objects/_find' &&
-            request.query.type.includes('dashboard') &&
-            request.method === 'get';
-    }
-
-    async callWithRequest(delegate, req, endpoint, clientParams, options) {
-        const response = await delegate(req, endpoint, clientParams, options);
-        req.upstreamResponse = response;
+    async process(cluster, action) {
+        const response = await cluster.processAction(action);
+        const savedObjects = _.get(response, 'docs', []);
+        const allObjectsAllowed = _.every(savedObjects, doc =>
+            action.principal.canView(doc._source) ||
+            action.principal.canEdit(doc._source)  ||
+            action.principal.canManage(doc._source)
+        );
+        if (!allObjectsAllowed) {
+            throw Boom.forbidden('The user is not authorized to fetch requested resources');
+        }
+        includePermissionsInSavedObjects(action.principal, savedObjects);
         return response;
-    }
-
-    onPostHandler(req, reply) {
-        const rawElasticDocs = _.get(req.upstreamResponse, 'hits.hits', []);
-        includeSavedObjectsPermissionsInResponse(req, rawElasticDocs);
-        return reply.continue();
-    }
-}
-
-class GetDashboardRule {
-
-    matches(request) {
-        return request.path === '/api/saved_objects/_bulk_get' && request.method === 'post';
-    }
-
-    async callWithRequest(delegate, req, endpoint, clientParams, options) {
-        const response = await delegate(req, endpoint, clientParams, options);
-        req.upstreamResponse = response;
-        return response;
-    }
-
-    onPostHandler(req, reply) {
-        const rawElasticDocs = _.get(req.upstreamResponse, 'docs', []);
-        includeSavedObjectsPermissionsInResponse(req, rawElasticDocs);
-        return reply.continue();
     }
 }
 
 const authRules = [
-    new CreateDashboardRule(),
-    new UpdateDashboardRule(),
-    new ListDashboardRule(),
-    new GetDashboardRule()
+    new AdminRule({ requiredRole: Roles.MANAGE_KIBANA }),
+    new CreateRule({ resourceType: 'dashboard', requiredRole: Roles.MANAGE_DASHBOARDS, aclEnabled: true }),
+    new UpdateRule({ resourceType: 'dashboard', requiredRole: Roles.MANAGE_DASHBOARDS, aclEnabled: true }),
+    new DeleteRule({ resourceType: 'dashboard', requiredRole: Roles.MANAGE_DASHBOARDS, aclEnabled: true }),
+    new CreateRule({ resourceType: 'visualization', requiredRole: Roles.MANAGE_VISUALIZATIONS }),
+    new UpdateRule({ resourceType: 'visualization', requiredRole: Roles.MANAGE_VISUALIZATIONS }),
+    new DeleteRule({ resourceType: 'visualization', requiredRole: Roles.MANAGE_VISUALIZATIONS }),
+    new CreateRule({ resourceType: 'search', requiredRole: Roles.MANAGE_SEARCHES }),
+    new UpdateRule({ resourceType: 'search', requiredRole: Roles.MANAGE_SEARCHES }),
+    new DeleteRule({ resourceType: 'search', requiredRole: Roles.MANAGE_SEARCHES }),
+    new FindRule(),
+    new BulkGetRule()
 ];
 
 export default authRules;

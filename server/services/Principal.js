@@ -1,4 +1,5 @@
 import _ from "lodash";
+import Permissions from '../../public/authz/constants/Permissions';
 
 export default class Principal {
 
@@ -19,13 +20,23 @@ export default class Principal {
     }
     can(action, document) {
         const permissions = _.get(document, `acl.permissions.${action}`, []);
-        return permissions === 'all' || permissions.includes(this._aclId);
+        return permissions === Permissions.allKeyword() || permissions.includes(this._aclId);
+    }
+    canView(document) {
+        return this.can(Permissions.VIEW, document);
+    }
+    canEdit(document) {
+        return this.can(Permissions.EDIT, document);
+    }
+    canManage(document) {
+        return this.can(Permissions.MANAGE, document);
     }
     createNewAcl() {
         return {
             owner: this._aclId,
             permissions: {
                 view: [],
+                edit: [],
                 manage: [this._aclId]
             }
         };
@@ -38,7 +49,7 @@ export default class Principal {
             return true;
         }
         const permissions = _.get(document, `acl.permissions.${permissionType}`, []);
-        if (permissions === 'all') {
+        if (permissions === Permissions.allKeyword()) {
             return true;
         }
         return permissions.includes(this._aclId);

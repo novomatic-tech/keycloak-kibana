@@ -1,5 +1,11 @@
-import {NAVIGATION_UPDATE} from "./events";
+import {NAVIGATION_UPDATE} from "../constants/EventTypes";
 
+/**
+ * This replaces the controller of the original appSwitcher directive
+ * so that it is possible to modify a list of links in the main menu.
+ *
+ * @see https://github.com/elastic/kibana/blob/v6.4.2/src/ui/public/chrome/directives/global_nav/app_switcher/app_switcher.js#L64
+ */
 export default function AppSwitcherDecorator($delegate) {
     return $delegate.map(del => {
         const baseControler = del.controller;

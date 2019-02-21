@@ -1,11 +1,13 @@
 import yar from 'yar8';
 import keycloak from 'keycloak-hapi';
 import _ from 'lodash';
-import {SecureClusterFacade} from "./server/services/SecureClusterFacade";
+import {secureSavedObjects} from "./server/services/SecureClusterFacade";
 import authRules from "./server/services/authRules";
 import Principal from "./server/services/Principal";
 import pkg from './package.json';
 import configurePermissionsRoutes from "./server/routes/permissions";
+import Permissions from "./public/authz/constants/Permissions";
+import configureUsersRoute from "./server/routes/users";
 
 const KEYCLOAK_CONFIG_PREFIX = 'keycloak';
 const SERVER_CONFIG_PREFIX = 'server';
@@ -16,7 +18,6 @@ const setupRequiredScope = (requiredRoles) => {
         if (value === '') {
             continue;
         }
-
         const prefix = value[0];
         const type = (prefix === '+' ? 'required' : (prefix === '!' ? 'forbidden' : 'selection'));
         const clean = (type === 'selection' ? value : value.slice(1));
@@ -95,33 +96,12 @@ const propagateBearerToken = (server) => {
     });
 };
 
-const secureSavedObjects = (server, keycloakConfig) => {
-
+const exposePrincipal = (server, keycloakConfig) => {
     server.decorate('request', 'getPrincipal', (request) => () => {
         return request.auth.credentials
             ? new Principal(request.auth.credentials, keycloakConfig.acl.ownerAttribute)
             : null;
     }, { apply: true });
-
-    const { savedObjects } = server;
-    savedObjects.setScopedSavedObjectsClientFactory(({ request }) => {
-        const secureCluster = new SecureClusterFacade({
-            cluster: server.plugins.elasticsearch.getCluster('admin'),
-            authRules,
-            keycloakConfig
-        });
-        const secureCallCluster = (...args) => secureCluster.callWithRequest(request, ...args);
-        const secureRepository = savedObjects.getSavedObjectsRepository(secureCallCluster);
-        return new savedObjects.SavedObjectsClient(secureRepository);
-    });
-
-    const postHandlingRules = authRules.filter(rule => !!rule.onPostHandler);
-    server.ext('onPostHandler', (request, reply) => {
-        const postHandlingRule = postHandlingRules.find(rule => rule.matches(request));
-        return postHandlingRule
-            ? postHandlingRule.onPostHandler(request, reply)
-            : reply.continue();
-    });
 };
 
 export default function (kibana) {
@@ -132,19 +112,7 @@ export default function (kibana) {
         uiExports: {
             chromeNavControls: [`plugins/keycloak-kibana/views/nav_control`],
             hacks: ['plugins/keycloak-kibana/hack'],
-            mappings: {
-                acl: {
-                    properties: {
-                        owner: { type: "keyword" },
-                        permissions: {
-                            properties: {
-                                view: { type: "keyword" },
-                                manage: { type: "keyword" }
-                            }
-                        }
-                    }
-                }
-            }
+            mappings: Permissions.getMappings() // TODO: refactor - remove from here and alter mappings via elastic API.
         },
         config(Joi) {
             return Joi.object({
@@ -168,7 +136,7 @@ export default function (kibana) {
                     })
                 }),
                 requiredRoles: Joi.array().items(Joi.string()).default([]),
-                propagateBearerToken: Joi.boolean().default(false),
+                propagateBearerToken: Joi.boolean().default(true),
                 enabled: Joi.boolean().default(true)
             }).default();
         },
@@ -195,11 +163,14 @@ export default function (kibana) {
                 server.auth.strategy('keycloak', 'keycloak', 'required');
                 configureBackChannelLogoutEndpoint(server, basePath);
                 interceptUnauthorizedRequests(server, basePath, getAuthorizationFor(keycloakConfig.requiredRoles));
-                secureSavedObjects(server, keycloakConfig);
+                exposePrincipal(server, keycloakConfig);
+                secureSavedObjects(server, authRules);
+                configurePermissionsRoutes(server);
+                configureUsersRoute(server);
+
                 if (keycloakConfig.propagateBearerToken) {
                     propagateBearerToken(server);
                 }
-                configurePermissionsRoutes(server);
             });
         }
     });

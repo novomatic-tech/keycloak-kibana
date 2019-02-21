@@ -1,6 +1,5 @@
-import {PRINCIPAL_UPDATE, PRINCIPAL_UPDATE_ERROR} from "./events";
+import {PRINCIPAL_UPDATE, PRINCIPAL_UPDATE_ERROR} from "../constants/EventTypes";
 import AuthorizationError from "./AuthorizationError";
-
 
 export default class PrincipalProvider {
 

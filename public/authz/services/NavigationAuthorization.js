@@ -1,13 +1,11 @@
-import {PRINCIPAL_UPDATE} from "./events";
-import {MANAGE_DASHBOARDS} from "./roles";
+import {PRINCIPAL_UPDATE} from "../constants/EventTypes";
 
 export default class NavigationAuthorization {
 
-    constructor($rootScope, navigationHandler, authorizationRules, dashboardConfig) {
+    constructor($rootScope, navigationHandler, authorizationRules) {
         this.$rootScope = $rootScope;
         this._navigationHandler = navigationHandler;
         this._authorizationRules = authorizationRules;
-        this._dashboardConfig = dashboardConfig;
     }
 
     initialize() {
@@ -31,10 +29,6 @@ export default class NavigationAuthorization {
             //evt.stopPropagation();
             navAuthz._navigationHandler.showLinks(linksToShow);
             navAuthz._navigationHandler.hideLinks(linksToHide);
-
-            if (!principal.scope.includes(MANAGE_DASHBOARDS)) {
-                navAuthz._dashboardConfig.getHideWriteControls = () => true;
-            }
         });
     }
 }

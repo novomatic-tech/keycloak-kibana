@@ -30,6 +30,8 @@ import {
     EuiIcon
 } from '@elastic/eui';
 import ShareDashboardModal from "./ShareDashboardModal";
+import Permissions from "../constants/Permissions";
+import Roles from "../constants/Roles";
 
 const DashboardConstants = {
     ADD_VISUALIZATION_TO_DASHBOARD_MODE_PARAM: 'addToDashboard',
@@ -48,8 +50,7 @@ export const EMPTY_FILTER = '';
 // the legacy implementation got around this by pulling `listingLimit` items and doing client side sorting
 // and not supporting server-side paging.
 // This component does not try to tackle these problems (yet) and is just feature matching the legacy component
-// TODO support server side sorting/paging once title and description are sortable on the server.
-export class DashboardListing extends React.Component {
+export class DashboardListing extends React.Component { // TODO: make it pretty!
 
     constructor(props) {
         super(props);
@@ -337,10 +338,11 @@ export class DashboardListing extends React.Component {
         ];
 
         const principal = this.props.principal;
-        const onlyWhenUserCanManage = (record) => {
-            return principal.scope.includes('manage-kibana') ||
-                (principal.scope.includes('manage-dashboards') &&
-                record.permissions.includes('manage'))
+        const onlyWhenUserCan = (permissions) => (record) => {
+            const allowed = principal.scope.includes(Roles.MANAGE_KIBANA) ||
+                (principal.scope.includes(Roles.MANAGE_DASHBOARDS) &&
+                _.some(permissions, permission => record.permissions.includes(permission)));
+            return allowed;
         };
 
         const deleteItem = (record) => {
@@ -355,23 +357,26 @@ export class DashboardListing extends React.Component {
 
         if (!this.props.hideWriteControls) {
             const editAction = {
-                enabled: onlyWhenUserCanManage,
-                render: (item) => (
-                    <EuiLink href={`#${createDashboardEditUrl(item.id)}?_a=(viewMode:edit)`}><EuiIcon type="pencil" /> Edit</EuiLink>
-                )
+                name: 'Edit',
+                icon: 'pencil',
+                enabled: onlyWhenUserCan([Permissions.EDIT, Permissions.MANAGE]),
+                onClick: (item) => {
+                    window.location.href = `#${createDashboardEditUrl(item.id)}?_a=(viewMode:edit)`
+                }
             };
             const shareAction = {
-                enabled: onlyWhenUserCanManage,
-                render: (item) => (
-                    <EuiLink onClick={() => shareItem(item)}><EuiIcon type="share" /> Share</EuiLink>
-                )
+                name: 'Share',
+                icon: 'share',
+                enabled: onlyWhenUserCan([Permissions.MANAGE]),
+                onClick: shareItem
             };
             const deleteAction = {
-                enabled: onlyWhenUserCanManage,
-                render: (item) => (
-                    <EuiLink onClick={() => deleteItem(item)}><EuiIcon type="trash" /> Delete</EuiLink>
-                )
+                name: 'Delete',
+                icon: 'trash',
+                enabled: onlyWhenUserCan([Permissions.MANAGE]),
+                onClick: deleteItem
             };
+
             tableColumns.push({
                 name: 'Actions',
                 actions: [editAction, shareAction, deleteAction]
@@ -422,8 +427,7 @@ export class DashboardListing extends React.Component {
                 <EuiFlexItem grow={false}>
                     <EuiButton
                         href={`#${DashboardConstants.CREATE_NEW_DASHBOARD_URL}`}
-                        data-test-subj="newDashboardLink"
-                    >
+                        data-test-subj="newDashboardLink">
                         Create new dashboard
                     </EuiButton>
                 </EuiFlexItem>
