@@ -15,18 +15,23 @@ export default class SavedObjectAction {
             this.request.method === 'post';
     };
 
+    gets = (resourceType) => {
+        return this.request.path.match(`^\/api\/saved_objects\/${resourceType}\/[a-z0-9\-.]+$`) &&
+            this.request.method === 'get';
+    };
+
     creates = (resourceType) => {
         return this.request.path === `/api/saved_objects/${resourceType}` &&
             this.request.method === 'post';
     };
 
     updates = (resourceType) => {
-        return this.request.path.match(`^\/api\/saved_objects\/${resourceType}\/[a-z0-9\-]+$`) &&
+        return this.request.path.match(`^\/api\/saved_objects\/${resourceType}\/[a-z0-9\-.]+$`) &&
             this.request.method === 'post';
     };
 
     deletes = (resourceType) => {
-        return this.request.path.match(`^\/api\/saved_objects\/${resourceType}\/[a-z0-9\-]+$`) &&
+        return this.request.path.match(`^\/api\/saved_objects\/${resourceType}\/[a-z0-9\-.]+$`) &&
             this.request.method === 'delete';
     };
 }

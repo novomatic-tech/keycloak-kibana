@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import ClusterDecorator from "./ClusterDecorator";
 import SavedObjectAction from "./SavedObjectAction";
+import Boom from 'boom';
 
 export class SecureClusterFacade {
 
@@ -25,6 +26,9 @@ export class SecureClusterFacade {
         if (rule) {
             return await rule.process(cluster, action);
         }
+
+        console.warn(`${req.method} ${req.path}`);
+        console.warn(clientParams);
         throw Boom.forbidden('The user is not authorized to perform this operation.');
     }
 }

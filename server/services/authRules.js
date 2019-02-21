@@ -1,6 +1,6 @@
 import _ from "lodash";
 import Roles from "../../public/authz/constants/Roles";
-import Permissions from "../../public/authz/constants/Permissions";
+import Boom from 'boom';
 
 const includePermissionsInSavedObjects = (principal, docs) => {
     docs.filter(doc => doc._source.type).forEach(doc => {
@@ -129,6 +129,19 @@ class FindRule {
     }
 }
 
+class KibanaAppRule {
+
+    matches(action) {
+        return action.request.path === '/app/kibana' &&
+            action.request.method === 'get';
+    }
+
+    process(cluster, action) {
+        return cluster.processAction(action);
+    }
+}
+
+
 class BulkGetRule {
 
     matches(action) {
@@ -139,6 +152,7 @@ class BulkGetRule {
         const response = await cluster.processAction(action);
         const savedObjects = _.get(response, 'docs', []);
         const allObjectsAllowed = _.every(savedObjects, doc =>
+            doc._source.type !== 'dashboard' ||
             action.principal.canView(doc._source) ||
             action.principal.canEdit(doc._source)  ||
             action.principal.canManage(doc._source)
@@ -163,8 +177,8 @@ const authRules = [
     new UpdateRule({ resourceType: 'search', requiredRole: Roles.MANAGE_SEARCHES }),
     new DeleteRule({ resourceType: 'search', requiredRole: Roles.MANAGE_SEARCHES }),
     new FindRule(),
-    new BulkGetRule()
+    new BulkGetRule(),
+    new KibanaAppRule()
 ];
 
 export default authRules;
-

@@ -9,7 +9,7 @@ export default class ClusterDecorator {
     };
 
     callWithRequest = (request, endpoint, clientParams, options) => {
-        return this._cluster.callWithInternalUser(request, endpoint, clientParams, options);
+        return this._cluster.callWithRequest(request, endpoint, clientParams, options);
     };
 
     processAction = (action) => {
