@@ -144,11 +144,7 @@ export default class ShareDashboardModal extends React.Component {
     debouncedFetchUsers = _.debounce(async (filter) => {
         const response = await this.props.getUsers(filter);
         const availableUsers = response.map(u => {
-            return {
-                label: `${u.firstName} ${u.lastName}`,
-                value: u.username,
-                userData: u
-            }
+            return { label: `${u.name || u.id}`, value: u.id, userData: u }
         });
         this.setState({ isFetchingUsers: false, availableUsers: [ANYONE].concat(availableUsers) });
     }, 300);

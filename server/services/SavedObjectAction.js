@@ -15,23 +15,23 @@ export default class SavedObjectAction {
             this.request.method === 'post';
     };
 
-    gets = (resourceType) => {
-        return this.request.path.match(`^\/api\/saved_objects\/${resourceType}\/[a-z0-9\-.]+$`) &&
-            this.request.method === 'get';
-    };
-
-    creates = (resourceType) => {
+    isCreationOf = (resourceType) => {
         return this.request.path === `/api/saved_objects/${resourceType}` &&
             this.request.method === 'post';
     };
 
-    updates = (resourceType) => {
+    isUpdateOf = (resourceType) => {
         return this.request.path.match(`^\/api\/saved_objects\/${resourceType}\/[a-z0-9\-.]+$`) &&
             this.request.method === 'post';
     };
 
-    deletes = (resourceType) => {
+    isDeletionOf = (resourceType) => {
         return this.request.path.match(`^\/api\/saved_objects\/${resourceType}\/[a-z0-9\-.]+$`) &&
             this.request.method === 'delete';
+    };
+
+    isRetrievalOf = (resourceType) => {
+        const {endpoint, clientParams} = this.clusterRequest;
+        return endpoint === 'get' && clientParams.id.startsWith(resourceType);
     };
 }

@@ -26,9 +26,7 @@ export class SecureClusterFacade {
         if (rule) {
             return await rule.process(cluster, action);
         }
-
-        console.warn(`${req.method} ${req.path}`);
-        console.warn(clientParams);
+        console.warn(`${req.method} ${req.path} is not authorized.`);
         throw Boom.forbidden('The user is not authorized to perform this operation.');
     }
 }

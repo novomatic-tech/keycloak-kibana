@@ -339,7 +339,7 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
 
         const principal = this.props.principal;
         const onlyWhenUserCan = (permissions) => (record) => {
-            const allowed = principal.scope.includes(Roles.MANAGE_KIBANA) ||
+            const allowed = principal.scope.includes(Roles.MANAGE_KIBANA) || // TODO: put this logic to backend
                 (principal.scope.includes(Roles.MANAGE_DASHBOARDS) &&
                 _.some(permissions, permission => record.permissions.includes(permission)));
             return allowed;

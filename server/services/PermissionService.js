@@ -79,6 +79,9 @@ export default class PermissionService {
         if (!this._principal.hasRole(Roles.MANAGE_KIBANA) && !this._principal.canManage(document)) {
             throw Boom.forbidden('The user is not authorized to get permissions for the resource');
         }
+        if (!document.acl) {
+            return { users: [], all: [] };
+        }
 
         const {owner, permissions} = document.acl;
         const userPermissionsMap = new Map();

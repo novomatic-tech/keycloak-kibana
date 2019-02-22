@@ -34,6 +34,9 @@ const configurePermissionsRoutes = (server) => {
             try {
                 const documentId = getDashboardDocId(request.params.dashboardId);
                 const permissions = permissionService.getPermissions(documentId);
+
+                // TODO: Enrich users with data from UserProvider when ownerAttribute == 'sub'
+
                 return reply(permissions);
             } catch(e) {
                 return reply(e);

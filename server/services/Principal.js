@@ -1,5 +1,6 @@
 import _ from "lodash";
 import Permissions from '../../public/authz/constants/Permissions';
+import Roles from "../../public/authz/constants/Roles";
 
 export default class Principal {
 
@@ -7,29 +8,46 @@ export default class Principal {
         this._credentials = credentials;
         this._aclId = credentials.accessToken.content[ownerAttribute] || credentials.accessToken.content.sub;
     }
+    getId() {
+        return this._aclId;
+    }
     hasRole(role) {
         return this._credentials.scope.includes(role);
     }
-    getId() {
-        return this._aclId;
+    getCredentials() {
+        return this._credentials;
     }
     getPermissionsFor(document) {
         const documentPermissions = _.get(document, `acl.permissions`, {});
         const permissions = Object.keys(documentPermissions).filter(p => this._hasPermission(document, p));
         return permissions;
     }
-    can(action, document) {
-        const permissions = _.get(document, `acl.permissions.${action}`, []);
-        return permissions === Permissions.allKeyword() || permissions.includes(this._aclId);
-    }
     canView(document) {
-        return this.can(Permissions.VIEW, document);
+        return this._can(Permissions.VIEW, document);
     }
     canEdit(document) {
-        return this.can(Permissions.EDIT, document);
+        return this._can(Permissions.EDIT, document);
     }
     canManage(document) {
-        return this.can(Permissions.MANAGE, document);
+        return this._can(Permissions.MANAGE, document);
+    }
+    canManageType(documentType) {
+        if (this.canDoAnything()) {
+            return true;
+        }
+        switch (documentType) {
+            case 'dashboard':
+                return this.hasRole(Roles.MANAGE_DASHBOARDS);
+            case 'search':
+                return this.hasRole(Roles.MANAGE_SEARCHES);
+            case 'visualization':
+                return this.hasRole(Roles.MANAGE_VISUALIZATIONS);
+            default:
+                return false;
+        }
+    }
+    canDoAnything() {
+        return this.hasRole(Roles.MANAGE_KIBANA);
     }
     createNewAcl() {
         return {
@@ -40,6 +58,16 @@ export default class Principal {
                 manage: [this._aclId]
             }
         };
+    }
+    _can(action, document) {
+        if (this.canDoAnything()) {
+            return true;
+        }
+        if ([Permissions.EDIT, Permissions.MANAGE].includes(action) && !this.canManageType(document.type)) {
+            return false;
+        }
+        const permissions = _.get(document, `acl.permissions.${action}`, []);
+        return permissions === Permissions.allKeyword() || permissions.includes(this._aclId);
     }
     _hasAcl(document) {
         return !!_.get(document, 'acl');

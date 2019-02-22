@@ -1,13 +1,15 @@
 import yar from 'yar8';
-import keycloak from 'keycloak-hapi';
+import keycloak, {KeycloakAdapter} from 'keycloak-hapi';
 import _ from 'lodash';
-import {secureSavedObjects} from "./server/services/SecureClusterFacade";
-import authRules from "./server/services/authRules";
-import Principal from "./server/services/Principal";
+import {secureSavedObjects} from './server/services/SecureClusterFacade';
+import authorizationRules from './server/services/authorizationRules';
+import Principal from './server/services/Principal';
+import configurePermissionsRoutes from './server/routes/permissions';
+import Permissions from './public/authz/constants/Permissions';
+import configureUsersRoutes from './server/routes/users';
 import pkg from './package.json';
-import configurePermissionsRoutes from "./server/routes/permissions";
-import Permissions from "./public/authz/constants/Permissions";
-import configureUsersRoute from "./server/routes/users";
+import InternalGrant from './server/services/InternalGrant';
+import configureTagsRoutes from "./server/routes/tags";
 
 const KEYCLOAK_CONFIG_PREFIX = 'keycloak';
 const SERVER_CONFIG_PREFIX = 'server';
@@ -104,6 +106,13 @@ const exposePrincipal = (server, keycloakConfig) => {
     }, { apply: true });
 };
 
+const initializeInternalGrant = (server, keycloakConfig) => {
+    const adapter = new KeycloakAdapter(server, keycloakConfig);
+    const internalGrant = new InternalGrant(adapter.grantManager);
+    server.decorate('server', 'getInternalGrant', () => internalGrant);
+    return internalGrant.initialize();
+};
+
 export default function (kibana) {
     return new kibana.Plugin({
         require: ['elasticsearch', 'kibana'],
@@ -125,7 +134,7 @@ export default function (kibana) {
                 principalNameAttribute: Joi.string().default('name'),
                 acl: Joi.object({
                    enabled: Joi.boolean().default(true),
-                   ownerAttribute: Joi.string().default('preferred_username')
+                   ownerAttribute: Joi.string().valid(['preferred_username','sub','email']).default('preferred_username')
                 }).default(),
                 session: Joi.object({
                     name: Joi.string().default('kc_session'),
@@ -160,14 +169,16 @@ export default function (kibana) {
                     options: keycloakConfig
                 });
             }).then(() => {
+                return initializeInternalGrant(server, keycloakConfig);
+            }).then(() => {
                 server.auth.strategy('keycloak', 'keycloak', 'required');
                 configureBackChannelLogoutEndpoint(server, basePath);
                 interceptUnauthorizedRequests(server, basePath, getAuthorizationFor(keycloakConfig.requiredRoles));
                 exposePrincipal(server, keycloakConfig);
-                secureSavedObjects(server, authRules);
+                secureSavedObjects(server, authorizationRules);
                 configurePermissionsRoutes(server);
-                configureUsersRoute(server);
-
+                configureUsersRoutes(server, keycloakConfig);
+                configureTagsRoutes(server, keycloakConfig);
                 if (keycloakConfig.propagateBearerToken) {
                     propagateBearerToken(server);
                 }
