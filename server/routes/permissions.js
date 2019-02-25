@@ -3,12 +3,18 @@ import PermissionService from "../services/PermissionService";
 import Roles from '../../public/authz/constants/Roles';
 import Permissions from '../../public/authz/constants/Permissions';
 
-const configurePermissionsRoutes = (server) => {
+const configurePermissionsRoutes = (server, userProvider, userMapper) => {
 
     const permissionServiceProvider = {
         get: (request) => {
             const cluster = server.plugins.elasticsearch.getCluster('admin');
-            return new PermissionService(request.getPrincipal(), cluster, '.kibana', 'doc'); // TODO: read .kibana from config
+            return new PermissionService({
+                userProvider,
+                userMapper,
+                principal: request.getPrincipal(),
+                cluster,
+                index: '.kibana', // TODO: read .kibana from config
+            });
         }
     };
 
@@ -34,9 +40,6 @@ const configurePermissionsRoutes = (server) => {
             try {
                 const documentId = getDashboardDocId(request.params.dashboardId);
                 const permissions = permissionService.getPermissions(documentId);
-
-                // TODO: Enrich users with data from UserProvider when ownerAttribute == 'sub'
-
                 return reply(permissions);
             } catch(e) {
                 return reply(e);

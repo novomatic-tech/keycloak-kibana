@@ -32,6 +32,7 @@ import {
 import ShareDashboardModal from "./ShareDashboardModal";
 import Permissions from "../constants/Permissions";
 import Roles from "../constants/Roles";
+import DashboardTags from "./DashboardTags";
 
 const DashboardConstants = {
     ADD_VISUALIZATION_TO_DASHBOARD_MODE_PARAM: 'addToDashboard',
@@ -114,7 +115,7 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
         } catch (error) {
             toastNotifications.addDanger({
                 title: `Unable to delete dashboard(s)`,
-                text: `${error}`,
+                text: `${error.message}`,
             });
         }
         this.fetchItems();
@@ -188,11 +189,39 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
         // If end is greater than the length of the sequence, slice extracts through to the end of the sequence (arr.length).
         const lastIndex = startIndex + this.state.perPage;
         return dashboardsCopy.slice(startIndex, lastIndex);
-    }
+    };
 
     hasNoDashboards() {
         return !this.state.isFetchingItems && this.state.dashboards.length === 0 && !this.state.filter;
-    }
+    };
+
+    toggleDashboardTag = (dashboardId, tag, active) => {
+        this.props.toggleDashboardTag(dashboardId, tag, active)
+            .then(() => {
+                const updatedDashboards = this.state.dashboards.map(dashboard => {
+                    if (dashboard.id === dashboardId) {
+                        if (active) {
+                            dashboard.tags.push(tag);
+                        } else {
+                            _.remove(dashboard.tags, t => t === tag);
+                        }
+                    } else if (tag === 'home') {
+                        _.remove(dashboard.tags, t => t === tag);
+                    }
+                    return dashboard;
+                });
+                this.setState({
+                   dashboards: updatedDashboards
+                });
+                toastNotifications.addSuccess(`Dashboard was successfully ${active ? '' : 'un'}tagged as ${tag}`);
+            })
+            .catch(() => {
+                toastNotifications.addDanger({
+                    title: `Unable to delete dashboard(s)`,
+                    text: `${error.message}`,
+                });
+            });
+    };
 
     renderConfirmDeleteModal() {
         return (
@@ -328,12 +357,6 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
                 name: 'Description',
                 dataType: 'string',
                 sortable: true,
-            },
-            {
-                field: 'owner',
-                name: 'Created by',
-                dataType: 'string',
-                sortable: true,
             }
         ];
 
@@ -355,7 +378,23 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
             this.openShareModal();
         };
 
+        tableColumns.push({
+            field: 'markers',
+            align: 'right',
+            width: '100px',
+            render: (field, dashboard) => {
+                return (<DashboardTags dashboard={dashboard} toggleDashboardTag={this.toggleDashboardTag}/>);
+            }
+        });
         if (!this.props.hideWriteControls) {
+            const makeHomeAction = {
+                name: 'Set as home',
+                icon: 'globe',
+                enabled: (item) => !item.tags.includes('home'),
+                onClick: (item) => {
+                    this.toggleDashboardTag(item.id, 'home', true);
+                }
+            };
             const editAction = {
                 name: 'Edit',
                 icon: 'pencil',
@@ -376,12 +415,13 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
                 enabled: onlyWhenUserCan([Permissions.MANAGE]),
                 onClick: deleteItem
             };
-
             tableColumns.push({
-                name: 'Actions',
-                actions: [editAction, shareAction, deleteAction]
+                field: 'actions',
+                width: '25px',
+                actions: [makeHomeAction, editAction, shareAction, deleteAction]
             });
         }
+
         const pagination = {
             pageIndex: this.state.page,
             pageSize: this.state.perPage,
@@ -493,6 +533,7 @@ DashboardListing.propTypes = {
     addPermissionForAll: PropTypes.func.isRequired,
     revokePermission: PropTypes.func.isRequired,
     revokePermissionForAll: PropTypes.func.isRequired,
+    toggleDashboardTag: PropTypes.func.isRequired
 };
 
 DashboardListing.defaultProps = {

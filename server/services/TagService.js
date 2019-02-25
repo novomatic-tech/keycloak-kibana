@@ -20,24 +20,38 @@ const SingleValueTagStrategy = {
         tags.push(item);
     },
     removeTag: (tags, item) => {
-        tags.splice(0, tags.length);
+        if (tags.length === 1 && tags[0] === item) {
+            tags.splice(0, tags.length);
+        }
     }
 };
 
-
 export default class TagService {
 
-    constructor(userProvider) {
+    constructor(userProvider, keyPrefix = 'kibana.dashboards') {
         this._userProvider = userProvider;
+        this._keyPrefix = keyPrefix;
     }
 
-    getAllDashboardTags = async (userId, tagName) => {
+    getAllDashboardTags = async (userId) => {
         const user = await this._userProvider.getUserById(userId);
-        const attributeKey = `kibana.dashboards.${tagName}`;
-        if (!user.attributes) {
-            return [];
-        }
-        return user.attributes[attributeKey] || [];
+        const prefix = `${this._keyPrefix}.`;
+        const dashboardMap = new Map();
+        _.keys(user.attributes)
+            .filter(key => key.startsWith(prefix))
+            .map(key => key.substring(prefix.length))
+            .forEach(tag => {
+                const dashboardIds = user.attributes[`${prefix}${tag}`] || [];
+                dashboardIds.forEach(id => {
+                    let tags = dashboardMap.get(id);
+                    if (!tags) {
+                        tags = [];
+                        dashboardMap.set(id, tags);
+                    }
+                    tags.push(tag);
+                });
+            });
+        return dashboardMap;
     };
 
     addDashboardTag = (userId, dashboardId, tagName) => {
@@ -64,12 +78,14 @@ export default class TagService {
         const user = await this._userProvider.getUserById(userId);
         const originalAttributes = user.attributes || {};
         const updateStrategy = this._getUpdateStrategyFor(tagName);
-        const attributeKey = `kibana.dashboards.${tagName}`;
+        const attributeKey = `${this._keyPrefix}.${tagName}`;
         const tags = originalAttributes[attributeKey] || [];
-        const modifiedTags = modifier(tags, updateStrategy);
+        modifier(tags, updateStrategy);
         const modifiedAttributes = Object.assign({}, originalAttributes, {
-            [attributeKey]: modifiedTags
+            [attributeKey]: tags
         });
+
+        // TODO: This can make users go out-of-sync (because there is no concurrency control).
         await this._userProvider.updateUser({
             id: userId,
             attributes: modifiedAttributes

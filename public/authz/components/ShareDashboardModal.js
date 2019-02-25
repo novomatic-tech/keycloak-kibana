@@ -248,9 +248,8 @@ export default class ShareDashboardModal extends React.Component {
         this.setState({ advancedView: true });
     };
 
-
     renderUserName = (user) => (
-        <span>{user.id || 'Anyone'}<span style={{color: '#aaa'}}>{user.you ? ' (you)' : ''}</span></span>
+            <span>{user.name || user.id || 'Anyone'}<span style={{color: '#aaa'}}>{user.you ? ' (you)' : ''}</span><br /></span>
     );
 
     renderUserIcon = (user) => (
@@ -270,6 +269,7 @@ export default class ShareDashboardModal extends React.Component {
             {
                 field: 'name',
                 name: 'Who has access',
+                width: '200px',
                 render: (field, user) => (
                     <div>
                         <EuiText style={{fontSize: '0.9em'}}>

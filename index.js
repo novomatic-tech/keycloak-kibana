@@ -10,6 +10,8 @@ import configureUsersRoutes from './server/routes/users';
 import pkg from './package.json';
 import InternalGrant from './server/services/InternalGrant';
 import configureTagsRoutes from "./server/routes/tags";
+import UserProvider from "./server/services/UserProvider";
+import UserMapper from "./server/services/UserMapper";
 
 const KEYCLOAK_CONFIG_PREFIX = 'keycloak';
 const SERVER_CONFIG_PREFIX = 'server';
@@ -113,7 +115,7 @@ const initializeInternalGrant = (server, keycloakConfig) => {
     return internalGrant.initialize();
 };
 
-export default function (kibana) {
+export default function (kibana) { // TODO: The plugin should work with Kibana 6.6.x by now.
     return new kibana.Plugin({
         require: ['elasticsearch', 'kibana'],
         name: 'keycloak-kibana',
@@ -133,8 +135,8 @@ export default function (kibana) {
                 minTimeBetweenJwksRequests: Joi.number().integer().default(10),
                 principalNameAttribute: Joi.string().default('name'),
                 acl: Joi.object({
-                   enabled: Joi.boolean().default(true),
-                   ownerAttribute: Joi.string().valid(['preferred_username','sub','email']).default('preferred_username')
+                   enabled: Joi.boolean().default(true), // TODO: This should toggle ACL features - currently it does nothing.
+                   ownerAttribute: Joi.string().valid(['preferred_username','sub','email']).default('sub')
                 }).default(),
                 session: Joi.object({
                     name: Joi.string().default('kc_session'),
@@ -176,9 +178,14 @@ export default function (kibana) {
                 interceptUnauthorizedRequests(server, basePath, getAuthorizationFor(keycloakConfig.requiredRoles));
                 exposePrincipal(server, keycloakConfig);
                 secureSavedObjects(server, authorizationRules);
-                configurePermissionsRoutes(server);
-                configureUsersRoutes(server, keycloakConfig);
-                configureTagsRoutes(server, keycloakConfig);
+
+                const userProvider = new UserProvider(keycloakConfig, server.getInternalGrant());
+                const userMapper = new UserMapper(keycloakConfig);
+
+                configureUsersRoutes(server, userProvider, userMapper);
+                configurePermissionsRoutes(server, userProvider, userMapper);
+                configureTagsRoutes(server, userProvider);
+
                 if (keycloakConfig.propagateBearerToken) {
                     propagateBearerToken(server);
                 }

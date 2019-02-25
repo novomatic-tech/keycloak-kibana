@@ -1,11 +1,9 @@
 import TagService from "../services/TagService";
 import Joi from 'joi';
 import _ from 'lodash';
-import UserProvider from "../services/UserProvider";
 
-const configureTagsRoutes = (server, keycloakConfig) => {
+const configureTagsRoutes = (server, userProvider) => {
 
-    const userProvider = new UserProvider(keycloakConfig, server.getInternalGrant());
     const tagService = new TagService(userProvider);
     const requestValidation = {
         params: {
@@ -13,6 +11,23 @@ const configureTagsRoutes = (server, keycloakConfig) => {
             tag: Joi.string().valid(['favourite','home']).required(),
         }
     };
+
+    server.route({
+       method: 'GET',
+       path: '/api/dashboard-tags',
+       handler: async (request, reply) => {
+           const userId = request.auth.credentials.accessToken.content.sub;
+           try {
+               const tagMap = await tagService.getAllDashboardTags(userId);
+               const tags = Array.from(tagMap.entries()).map(kv => {
+                   return { id: kv[0], tags: kv[1] }
+               });
+               return reply(tags);
+           } catch(e) {
+               return reply(Boom.internal(e.message));
+           }
+       }
+    });
 
     server.route({
         method: 'PUT',
@@ -25,8 +40,9 @@ const configureTagsRoutes = (server, keycloakConfig) => {
 
             try {
                 await tagService.addDashboardTag(userId, dashboardId, tag);
+                return reply().code(204);
             } catch(e) {
-                throw Boom.internal(e.message);
+                return reply(Boom.internal(e.message));
             }
         },
         config: {
@@ -45,8 +61,9 @@ const configureTagsRoutes = (server, keycloakConfig) => {
 
             try {
                 await tagService.removeDashboardTag(userId, dashboardId, tag);
+                return reply().code(204);
             } catch(e) {
-                throw Boom.internal(e.message);
+                return reply (Boom.internal(e.message));
             }
         },
         config: {
@@ -62,14 +79,11 @@ const configureTagsRoutes = (server, keycloakConfig) => {
         const hasDashboards = _.some(savedObjects, item => item.type === 'dashboard');
         if (hasDashboards) {
             const userId = request.auth.credentials.accessToken.content.sub;
-            const favouriteDashboards = await tagService.getAllDashboardTags(userId, 'favourite');
+            const tags = await tagService.getAllDashboardTags(userId);
             savedObjects
                 .filter(item => item.type === 'dashboard')
                 .forEach(item => {
-                    item.attributes.tags = [];
-                    if (favouriteDashboards.includes(item.id)) {
-                        item.attributes.tags.push('favourite');
-                    }
+                    item.attributes.tags = tags.get(item.id) || [];
                 });
         }
         return reply.continue();

@@ -4,6 +4,13 @@ export default class TagService {
         this._httpClient = $http;
     }
 
+    getAllDashboardTags = () => {
+        return this._httpClient({
+            method: 'get',
+            url: `/api/dashboard-tags`
+        }).then(resp => resp.data);
+    };
+
     addDashboardTag = (dashboardId, tag) => {
         return this._httpClient({
             method: 'put',
@@ -16,5 +23,11 @@ export default class TagService {
             method: 'delete',
             url: `/api/saved_objects/dashboard/${dashboardId}/tags/${tag}`
         })
+    };
+
+    toggleDashboardTag = (dashboardId, tag, active) => {
+        return active
+            ? this.addDashboardTag(dashboardId, tag)
+            : this.removeDashboardTag(dashboardId, tag);
     };
 }

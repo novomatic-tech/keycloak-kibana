@@ -70,7 +70,7 @@ class DeleteRule {
         if (this._aclEnabled) {
             const {clientParams} = action.clusterRequest;
             const {id, type, index} = clientParams;
-            const document = await cluster.callWithRequest(action.request, 'get',
+            const document = await cluster.callWithInternalUser('get',
                 {id, type, index, ignore: 404}, {});
 
             if (!principal.canManage(document._source)) {
@@ -100,7 +100,7 @@ class UpdateRule {
         if (this._aclEnabled) {
             const {clientParams} = action.clusterRequest;
             const {id, type, index} = clientParams;
-            const document = await cluster.callWithRequest(action.request, 'get',
+            const document = await cluster.callWithInternalUser('get',
                 {id, type, index, ignore: 404}, {});
             if (!principal.canEdit(document._source) &&
                 !principal.canManage(document._source)) {
@@ -158,7 +158,9 @@ class GetRule {
         const document = await cluster.processAction(action);
         if (this._aclEnabled) {
             const {principal} = action;
-            if (!principal.canView(document._source)) {
+            if (!principal.canView(document._source) &&
+                !principal.canEdit(document._source) &&
+                !principal.canManage(document._source)) {
                 throw Boom.forbidden(`The user has no permissions to update this resource.`);
             }
         }
@@ -175,12 +177,12 @@ class BulkGetRule {
     async process(cluster, action) {
         const response = await cluster.processAction(action);
         const savedObjects = _.get(response, 'docs', []);
-        const allObjectsAllowed = _.every(savedObjects, doc =>
-            doc._source.type !== 'dashboard' ||
-            action.principal.canView(doc._source) ||
-            action.principal.canEdit(doc._source) ||
-            action.principal.canManage(doc._source)
-        );
+        const allObjectsAllowed = _.every(savedObjects, doc => {
+            return doc._source.type !== 'dashboard' ||
+                action.principal.canView(doc._source) ||
+                action.principal.canEdit(doc._source) ||
+                action.principal.canManage(doc._source);
+        });
         if (!allObjectsAllowed) {
             throw Boom.forbidden('The user is not authorized to fetch requested resources');
         }

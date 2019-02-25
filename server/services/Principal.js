@@ -7,6 +7,7 @@ export default class Principal {
     constructor(credentials, ownerAttribute) {
         this._credentials = credentials;
         this._aclId = credentials.accessToken.content[ownerAttribute] || credentials.accessToken.content.sub;
+        this._ownerAttribute = ownerAttribute;
     }
     getId() {
         return this._aclId;
@@ -16,6 +17,9 @@ export default class Principal {
     }
     getCredentials() {
         return this._credentials;
+    }
+    getOwnerAttribute() {
+        return this._ownerAttribute;
     }
     getPermissionsFor(document) {
         const documentPermissions = _.get(document, `acl.permissions`, {});
@@ -62,9 +66,6 @@ export default class Principal {
     _can(action, document) {
         if (this.canDoAnything()) {
             return true;
-        }
-        if ([Permissions.EDIT, Permissions.MANAGE].includes(action) && !this.canManageType(document.type)) {
-            return false;
         }
         const permissions = _.get(document, `acl.permissions.${action}`, []);
         return permissions === Permissions.allKeyword() || permissions.includes(this._aclId);

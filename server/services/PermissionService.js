@@ -56,11 +56,13 @@ const revokePermissionForAllScript = "" +
 
 export default class PermissionService {
 
-    constructor(principal, cluster, index, type) {
+    constructor({principal, cluster, index, type, userProvider, userMapper}) {
         this._index = index;
-        this._type = type;
+        this._type = type || 'doc';
         this._cluster = cluster;
         this._principal = principal;
+        this._userProvider = userProvider;
+        this._userMapper = userMapper;
     }
 
     async getPermissions(documentId) {
@@ -80,12 +82,12 @@ export default class PermissionService {
             throw Boom.forbidden('The user is not authorized to get permissions for the resource');
         }
         if (!document.acl) {
-            return { users: [], all: [] };
+            return {users: [], all: []};
         }
 
         const {owner, permissions} = document.acl;
-        const userPermissionsMap = new Map();
         const all = [];
+        const userPermissionsMap = new Map();
         _.keys(permissions).forEach(permission => {
             if (permissions[permission] === Permissions.allKeyword()) {
                 all.push(permission);
@@ -101,7 +103,7 @@ export default class PermissionService {
             }
         });
         const users = Array.from(userPermissionsMap.keys()).map(id => {
-            const user = { id, permissions: userPermissionsMap.get(id) };
+            const user = {id, permissions: userPermissionsMap.get(id)};
             if (user.id === owner) {
                 user.owner = true;
             }
@@ -110,8 +112,17 @@ export default class PermissionService {
             }
             return user;
         });
+        if (this._principal.getOwnerAttribute() === 'sub') {
+            for (let user of users) {
+                // TODO: this is suboptimal, we're asking for each user by its ID.
+                const additionalUserData = await this._userProvider.getUserById(user.id);
+                _.assign(user, this._userMapper.map(additionalUserData));
+            }
+        }
         return { users: _.sortBy(users, u => u.id), all };
     }
+
+
 
     async addPermission(documentId, permission, userIds) {
         return await this._addPermission(documentId, permission, addPermissionScript, userIds);

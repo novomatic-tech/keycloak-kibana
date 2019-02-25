@@ -9,7 +9,8 @@ import Roles from "../constants/Roles";
  * @see https://github.com/elastic/kibana/blob/v6.4.2/src/core_plugins/kibana/public/dashboard/listing/dashboard_listing.js#L52
  * @see https://github.com/elastic/kibana/blob/v6.4.2/src/core_plugins/kibana/public/dashboard/index.js#L44
  */
-export default OverriddenReactDirective(DashboardListing, (principalProvider, userProvider, dashboardPermissions) => {
+export default OverriddenReactDirective(DashboardListing,
+    (principalProvider, userProvider, dashboardPermissions, tagService) => {
     return {
         hideWriteControls: !principalProvider.getPrincipal().scope.includes(Roles.MANAGE_DASHBOARDS),
         principal: principalProvider.getPrincipal(),
@@ -19,5 +20,6 @@ export default OverriddenReactDirective(DashboardListing, (principalProvider, us
         addPermissionForAll: dashboardPermissions.addPermissionForAll,
         revokePermission: dashboardPermissions.revokePermission,
         revokePermissionForAll: dashboardPermissions.revokePermissionForAll,
+        toggleDashboardTag: tagService.toggleDashboardTag
     }
 });

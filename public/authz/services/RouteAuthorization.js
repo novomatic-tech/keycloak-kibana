@@ -34,7 +34,7 @@ export default class RouteAuthorization {
         if (!rule && this.authorizationRules.allowMissingRoutes) {
             return;
         }
-        if (rule.principal(principal, nextLocation)) {
+        if (rule && rule.principal(principal, nextLocation)) {
             return;
         }
         throw new AuthorizationError(`Route ${nextLocation.originalPath} is not authorized`);
