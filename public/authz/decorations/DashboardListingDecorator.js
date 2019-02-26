@@ -1,6 +1,7 @@
 import OverriddenReactDirective from "./OverriddenReactDirective";
 import {DashboardListing} from "../components/DashboardListing";
 import Roles from "../constants/Roles";
+import {isFeatureEnabled} from "../utils";
 
 /**
  * This overrides the original DashboardListing React component with a custom one
@@ -20,6 +21,7 @@ export default OverriddenReactDirective(DashboardListing,
         addPermissionForAll: dashboardPermissions.addPermissionForAll,
         revokePermission: dashboardPermissions.revokePermission,
         revokePermissionForAll: dashboardPermissions.revokePermissionForAll,
-        toggleDashboardTag: tagService.toggleDashboardTag
+        toggleDashboardTag: tagService.toggleDashboardTag,
+        isFeatureEnabled: isFeatureEnabled
     }
 });

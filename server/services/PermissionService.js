@@ -115,6 +115,7 @@ export default class PermissionService {
         if (this._principal.getOwnerAttribute() === 'sub') {
             for (let user of users) {
                 // TODO: this is suboptimal, we're asking for each user by its ID.
+                // Fix this once there is more suitable API for this.
                 const additionalUserData = await this._userProvider.getUserById(user.id);
                 _.assign(user, this._userMapper.map(additionalUserData));
             }

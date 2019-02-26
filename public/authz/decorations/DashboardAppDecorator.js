@@ -1,5 +1,6 @@
 import Roles from '../constants/Roles';
 import Permissions from "../constants/Permissions";
+import {isFeatureEnabled} from "../utils";
 
 /**
  * This replaces the controller of the original dashboardApp directive
@@ -19,6 +20,9 @@ export default function DashboardAppDecorator($delegate) {
                     const canManageDashboards = principal.scope.includes(Roles.MANAGE_DASHBOARDS);
                     if (!canManageDashboards) {
                         return true;
+                    }
+                    if (!isFeatureEnabled('acl')) {
+                        return false;
                     }
                     return dashboard.permissions &&
                         !dashboard.permissions.includes(Permissions.EDIT) &&

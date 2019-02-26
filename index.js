@@ -1,8 +1,8 @@
 import yar from 'yar8';
 import keycloak, {KeycloakAdapter} from 'keycloak-hapi';
-import _ from 'lodash';
+import _, {get} from 'lodash';
 import {secureSavedObjects} from './server/services/SecureClusterFacade';
-import authorizationRules from './server/services/authorizationRules';
+import {getAuthorizationRules} from './server/services/authorizationRules';
 import Principal from './server/services/Principal';
 import configurePermissionsRoutes from './server/routes/permissions';
 import Permissions from './public/authz/constants/Permissions';
@@ -121,6 +121,16 @@ export default function (kibana) { // TODO: The plugin should work with Kibana 6
         name: 'keycloak-kibana',
         configPrefix: KEYCLOAK_CONFIG_PREFIX,
         uiExports: {
+            injectDefaultVars(server, options) {
+                return {
+                    keycloak: {
+                        features: {
+                            acl: options.acl.enabled,
+                            tagging: options.tagging.enabled
+                        }
+                    }
+                };
+            },
             chromeNavControls: [`plugins/keycloak-kibana/views/nav_control`],
             hacks: ['plugins/keycloak-kibana/hack'],
             mappings: Permissions.getMappings() // TODO: refactor - remove from here and alter mappings via elastic API.
@@ -135,8 +145,11 @@ export default function (kibana) { // TODO: The plugin should work with Kibana 6
                 minTimeBetweenJwksRequests: Joi.number().integer().default(10),
                 principalNameAttribute: Joi.string().default('name'),
                 acl: Joi.object({
-                   enabled: Joi.boolean().default(true), // TODO: This should toggle ACL features - currently it does nothing.
+                   enabled: Joi.boolean().default(false),
                    ownerAttribute: Joi.string().valid(['preferred_username','sub','email']).default('sub')
+                }).default(),
+                tagging: Joi.object({
+                    enabled: Joi.boolean().default(false)
                 }).default(),
                 session: Joi.object({
                     name: Joi.string().default('kc_session'),
@@ -177,14 +190,19 @@ export default function (kibana) { // TODO: The plugin should work with Kibana 6
                 configureBackChannelLogoutEndpoint(server, basePath);
                 interceptUnauthorizedRequests(server, basePath, getAuthorizationFor(keycloakConfig.requiredRoles));
                 exposePrincipal(server, keycloakConfig);
-                secureSavedObjects(server, authorizationRules);
 
                 const userProvider = new UserProvider(keycloakConfig, server.getInternalGrant());
-                const userMapper = new UserMapper(keycloakConfig);
+                secureSavedObjects(server, getAuthorizationRules(keycloakConfig.acl.enabled));
 
-                configureUsersRoutes(server, userProvider, userMapper);
-                configurePermissionsRoutes(server, userProvider, userMapper);
-                configureTagsRoutes(server, userProvider);
+                if (keycloakConfig.acl.enabled) {
+                    const userMapper = new UserMapper(keycloakConfig);
+                    configureUsersRoutes(server, userProvider, userMapper);
+                    configurePermissionsRoutes(server, userProvider, userMapper);
+                }
+
+                if (keycloakConfig.tagging.enabled) {
+                    configureTagsRoutes(server, userProvider);
+                }
 
                 if (keycloakConfig.propagateBearerToken) {
                     propagateBearerToken(server);

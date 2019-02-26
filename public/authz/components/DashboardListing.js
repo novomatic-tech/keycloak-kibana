@@ -378,48 +378,54 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
             this.openShareModal();
         };
 
-        tableColumns.push({
-            field: 'markers',
-            align: 'right',
-            width: '100px',
-            render: (field, dashboard) => {
-                return (<DashboardTags dashboard={dashboard} toggleDashboardTag={this.toggleDashboardTag}/>);
-            }
-        });
-        if (!this.props.hideWriteControls) {
-            const makeHomeAction = {
-                name: 'Set as home',
-                icon: 'globe',
-                enabled: (item) => !item.tags.includes('home'),
-                onClick: (item) => {
-                    this.toggleDashboardTag(item.id, 'home', true);
+        if (this.props.isFeatureEnabled('tagging')) {
+            tableColumns.push({
+                field: 'markers',
+                align: 'right',
+                width: '100px',
+                render: (field, dashboard) => {
+                    return (<DashboardTags dashboard={dashboard} toggleDashboardTag={this.toggleDashboardTag}/>);
                 }
-            };
-            const editAction = {
+            });
+        }
+
+        if (!this.props.hideWriteControls) {
+            const actions = [];
+            if (this.props.isFeatureEnabled('tagging')) {
+                actions.push({
+                    name: 'Set as home',
+                    icon: 'globe',
+                    enabled: (item) => !item.tags.includes('home'),
+                    onClick: (item) => {
+                        this.toggleDashboardTag(item.id, 'home', true);
+                    }
+                });
+            }
+            actions.push({
                 name: 'Edit',
                 icon: 'pencil',
                 enabled: onlyWhenUserCan([Permissions.EDIT, Permissions.MANAGE]),
                 onClick: (item) => {
                     window.location.href = `#${createDashboardEditUrl(item.id)}?_a=(viewMode:edit)`
                 }
-            };
-            const shareAction = {
-                name: 'Share',
-                icon: 'share',
-                enabled: onlyWhenUserCan([Permissions.MANAGE]),
-                onClick: shareItem
-            };
-            const deleteAction = {
+            });
+
+            if (this.props.isFeatureEnabled('acl')) {
+                actions.push({
+                    name: 'Share',
+                    icon: 'share',
+                    enabled: onlyWhenUserCan([Permissions.MANAGE]),
+                    onClick: shareItem
+                });
+            }
+            actions.push({
                 name: 'Delete',
                 icon: 'trash',
                 enabled: onlyWhenUserCan([Permissions.MANAGE]),
                 onClick: deleteItem
-            };
-            tableColumns.push({
-                field: 'actions',
-                width: '25px',
-                actions: [makeHomeAction, editAction, shareAction, deleteAction]
             });
+
+            tableColumns.push({ field: 'actions', width: '25px', actions });
         }
 
         const pagination = {
@@ -533,7 +539,8 @@ DashboardListing.propTypes = {
     addPermissionForAll: PropTypes.func.isRequired,
     revokePermission: PropTypes.func.isRequired,
     revokePermissionForAll: PropTypes.func.isRequired,
-    toggleDashboardTag: PropTypes.func.isRequired
+    toggleDashboardTag: PropTypes.func.isRequired,
+    isFeatureEnabled: PropTypes.func.isRequired
 };
 
 DashboardListing.defaultProps = {

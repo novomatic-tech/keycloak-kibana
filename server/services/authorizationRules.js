@@ -114,6 +114,11 @@ class UpdateRule {
 
 class FindRule {
 
+    constructor({ aclEnabled }) {
+        this._aclEnabled = aclEnabled;
+    }
+
+
     matches(action) {
         return action.isFind();
     }
@@ -121,7 +126,7 @@ class FindRule {
     async process(cluster, action) {
         const {principal} = action;
         const filter = _.get(action.clusterRequest.clientParams, 'body.query.bool.filter');
-        if (!principal.canDoAnything() && _.isArray(filter)) {
+        if (!principal.canDoAnything() && this._aclEnabled && _.isArray(filter)) {
             const principalId = principal.getId();
             const all = Permissions.allKeyword();
             filter.push({
@@ -137,8 +142,10 @@ class FindRule {
             });
         }
         const response = await cluster.processAction(action);
-        const savedObjects = _.get(response, 'hits.hits', []);
-        includePermissionsInSavedObjects(principal, savedObjects);
+        if (this._aclEnabled) {
+            const savedObjects = _.get(response, 'hits.hits', []);
+            includePermissionsInSavedObjects(principal, savedObjects);
+        }
         return response;
     }
 }
@@ -156,13 +163,14 @@ class GetRule {
 
     async process(cluster, action) {
         const document = await cluster.processAction(action);
-        if (this._aclEnabled) {
-            const {principal} = action;
-            if (!principal.canView(document._source) &&
-                !principal.canEdit(document._source) &&
-                !principal.canManage(document._source)) {
-                throw Boom.forbidden(`The user has no permissions to update this resource.`);
-            }
+        if (!this._aclEnabled) {
+            return document;
+        }
+        const {principal} = action;
+        if (!principal.canView(document._source) &&
+            !principal.canEdit(document._source) &&
+            !principal.canManage(document._source)) {
+            throw Boom.forbidden(`The user has no permissions to update this resource.`);
         }
         return document;
     }
@@ -170,12 +178,20 @@ class GetRule {
 
 class BulkGetRule {
 
+    constructor({ aclEnabled }) {
+        this._aclEnabled = aclEnabled;
+    }
+
     matches(action) {
         return action.isBulkGet();
     }
 
     async process(cluster, action) {
         const response = await cluster.processAction(action);
+        if (!this._aclEnabled) {
+            return response;
+        }
+
         const savedObjects = _.get(response, 'docs', []);
         const allObjectsAllowed = _.every(savedObjects, doc => {
             return doc._source.type !== 'dashboard' ||
@@ -191,11 +207,11 @@ class BulkGetRule {
     }
 }
 
-const authorizationRules = [
+export const getAuthorizationRules = (aclEnabled) => [
     new GetRule({ resourceType: 'dashboard' }),
-    new CreateRule({ resourceType: 'dashboard', aclEnabled: true }),
-    new UpdateRule({ resourceType: 'dashboard', aclEnabled: true }),
-    new DeleteRule({ resourceType: 'dashboard', aclEnabled: true }),
+    new CreateRule({ resourceType: 'dashboard', aclEnabled }),
+    new UpdateRule({ resourceType: 'dashboard', aclEnabled }),
+    new DeleteRule({ resourceType: 'dashboard', aclEnabled }),
     new GetRule({ resourceType: 'visualization' }),
     new CreateRule({ resourceType: 'visualization' }),
     new UpdateRule({ resourceType: 'visualization' }),
@@ -205,9 +221,8 @@ const authorizationRules = [
     new UpdateRule({ resourceType: 'search' }),
     new DeleteRule({ resourceType: 'search' }),
     new GetRule({ resourceType: 'config' }),
-    new FindRule(),
-    new BulkGetRule(),
+    new FindRule({ aclEnabled }),
+    new BulkGetRule({ aclEnabled }),
     new AnyActionRule({ allowedWhen: (action) => action.principal.canDoAnything() })
 ];
 
-export default authorizationRules;

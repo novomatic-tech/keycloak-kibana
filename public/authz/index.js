@@ -15,16 +15,18 @@ import DashboardListingDecorator from "./decorations/DashboardListingDecorator";
 import HomeRouteDecoration from "./decorations/HomeRouteDecoration";
 
 import authorizationRules from "./authorizationRules";
-
-const isKibanaApp = () => (window.location.pathname || '').endsWith('/app/kibana');
+import {isFeatureEnabled, isKibanaApp} from "./utils";
 
 uiModules.get('kibana', ['ngRoute', 'react'])
     .decorator('appSwitcherDirective', AppSwitcherDecorator);
 
 if (isKibanaApp()) {
-    uiModules.get('app/dashboard')
-        .decorator('dashboardListingDirective', DashboardListingDecorator)
+    const dashboardApp = uiModules.get('app/dashboard')
         .decorator('dashboardAppDirective', DashboardAppDecorator);
+
+    if (isFeatureEnabled('acl') || isFeatureEnabled('tagging')) {
+        dashboardApp.decorator('dashboardListingDirective', DashboardListingDecorator);
+    }
 }
 
 uiModules.get('app/keycloak', ['kibana'])
@@ -34,12 +36,14 @@ uiModules.get('app/keycloak', ['kibana'])
     .service('routeAuthorization', RouteAuthorization)
     .service('principalProvider', PrincipalProvider)
     .service('dashboardPermissions', DashboardPermissions)
-    .service('tagService', TagService)
     .service('userProvider', UserProvider)
+    .service('tagService', TagService)
     .run(($rootScope, navigationHandler, $route, navigationAuthorization, routeAuthorization) => {
         navigationHandler.initialize();
         navigationAuthorization.initialize();
         routeAuthorization.initialize();
     });
 
-uiRoutes.when('/home', HomeRouteDecoration);
+if (isFeatureEnabled('tagging')) {
+    uiRoutes.when('/home', HomeRouteDecoration);
+}

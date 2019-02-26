@@ -69,7 +69,11 @@ Parameter | Description | Default
 `keycloak.session.cookieOptions.isSecure` | Determines whether or not to transfer session cookies using TLS/SSL. | `false`
 `keycloak.session.cookieOptions.isHttpOnly` | Determines whether or not to set HttpOnly option in cookie. Cookies, when used with the HttpOnly cookie flag, are not accessible through JavaScript, and are immune to XSS. | `false`
 `keycloak.requiredRoles` | A list of Keycloak roles a user has to be assigned to in order to access Kibana. By default, any authenticated user can use Kibana. When this property is set only users with certain roles assigned can access Kibana. | `[]`
-`keycloak.propagateBearerToken` | A boolean value determining whether `Authorization: Bearer [ACCESS_TOKEN]` header should be propagated to Elasticsearch. | `false`
+`keycloak.propagateBearerToken` | A boolean value determining whether `Authorization: Bearer [ACCESS_TOKEN]` header should be propagated to Elasticsearch. | `true`
+`keycloak.acl.enabled` | A toggle for dashboard ownership feature. When enabled, each created dashboard has its owner and cannot be viewed, edited or managed by others unless shared. | `false`
+`keycloak.acl.ownerAttribute`| OpenID Connect ID Token attribute which will be used as the user identifier for ACLs. Possible values are *sub*, *preferred_username*, *email*. | `sub`
+`keycloak.tagging.enabled` | A toggle for dashboard tagging feature. When enabled users are able to manage their favourite and home dashboards. | `false`
+
 
 Sample configuration section can be found in the `env/kibana/kibana.yml` file.
 

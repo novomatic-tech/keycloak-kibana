@@ -196,7 +196,8 @@ export default class ShareDashboardModal extends React.Component {
                 this.setState({ selectedUsers: [] });
                 this.fetchPermissions(this.props.dashboard.id);
             } else {
-                toastNotifications.addSuccess(`Dashboard shared successfully with ${userIds.length} ${userIds.length > 1 ? 'people' : 'person'}.`);
+                const peopleAmount = hasPermissionForAnyone ? 'everybody' : `${userIds.length} person(s).`;
+                toastNotifications.addSuccess(`Dashboard shared successfully with ${peopleAmount}.`);
                 this.props.onClose();
             }
         }).catch((error) => {
