@@ -35,15 +35,11 @@ const configurePermissionsRoutes = (server, userProvider, userMapper) => {
     server.route({
         method: 'GET',
         path: '/api/saved_objects/dashboard/{dashboardId}/permissions',
-        handler: async(request, reply) => {
+        handler: async(request) => {
             const permissionService = permissionServiceProvider.get(request);
-            try {
-                const documentId = getDashboardDocId(request.params.dashboardId);
-                const permissions = permissionService.getPermissions(documentId);
-                return reply(permissions);
-            } catch(e) {
-                return reply(e);
-            }
+            const documentId = getDashboardDocId(request.params.dashboardId);
+            const permissions = permissionService.getPermissions(documentId);
+            return permissions;
         },
         config: {
             validate: {
@@ -58,23 +54,20 @@ const configurePermissionsRoutes = (server, userProvider, userMapper) => {
     server.route({
         method: 'PUT',
         path: '/api/saved_objects/dashboard/{dashboardId}/permissions/{permission}',
-        handler: async (request, reply) => {
+        handler: async (request) => {
             const {dashboardId, permission} = request.params;
             const {users, all} = request.payload;
             const documentId = getDashboardDocId(dashboardId);
             const permissionService = permissionServiceProvider.get(request);
-            try {
-                if (all) {
-                    await permissionService.addPermissionForAll(documentId, permission);
-                } else {
-                    await permissionService.addPermission(documentId, permission, users || []);
-                }
-                return reply().code(204);
-            } catch(e) {
-                return reply(e);
+            if (all) {
+                await permissionService.addPermissionForAll(documentId, permission);
+            } else {
+                await permissionService.addPermission(documentId, permission, users || []);
             }
+            return null;
         },
         config: {
+            response: { emptyStatusCode: 204 },
             validate: requestValidation,
             auth: {
                 scope: [Roles.MANAGE_DASHBOARDS]
@@ -85,23 +78,20 @@ const configurePermissionsRoutes = (server, userProvider, userMapper) => {
     server.route({
         method: 'DELETE',
         path: '/api/saved_objects/dashboard/{dashboardId}/permissions/{permission}',
-        handler: async (request, reply) => {
+        handler: async (request) => {
             const {dashboardId, permission} = request.params;
             const {users, all} = request.payload;
             const documentId = getDashboardDocId(dashboardId);
             const permissionService = permissionServiceProvider.get(request);
-            try {
-                if (all) {
-                    await permissionService.revokePermissionForAll(documentId, permission);
-                } else {
-                    await permissionService.revokePermission(documentId, permission, users || []);
-                }
-                return reply().code(204);
-            } catch(e) {
-                return reply(e);
+            if (all) {
+                await permissionService.revokePermissionForAll(documentId, permission);
+            } else {
+                await permissionService.revokePermission(documentId, permission, users || []);
             }
+            return null;
         },
         config: {
+            response: { emptyStatusCode: 204 },
             validate: requestValidation,
             auth: {
                 scope: [Roles.MANAGE_DASHBOARDS]

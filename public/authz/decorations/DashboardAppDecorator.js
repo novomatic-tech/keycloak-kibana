@@ -12,7 +12,8 @@ import {isFeatureEnabled} from "../utils";
 export default function DashboardAppDecorator($delegate) {
     return $delegate.map(del => {
         const baseControler = del.controller;
-        function newController($scope, $rootScope, $route, $routeParams, $location, getAppState, dashboardConfig, localStorage, principalProvider) {
+        function newController($scope, $rootScope, $route, $routeParams, getAppState,
+                               dashboardConfig, localStorage, i18n, principalProvider) {
             const dashboard = $route.current.locals.dash;
             const principal = principalProvider.getPrincipal();
             const newDashboardConfig = {
@@ -29,7 +30,7 @@ export default function DashboardAppDecorator($delegate) {
                         !dashboard.permissions.includes(Permissions.MANAGE)
                 }
             };
-            return baseControler.bind(this).call(del, $scope, $rootScope, $route, $routeParams, $location, getAppState, newDashboardConfig, localStorage);
+            return baseControler.bind(this).call(del, $scope, $rootScope, $route, $routeParams, getAppState, newDashboardConfig, localStorage, i18n);
         }
         del.controller = newController;
         return del;

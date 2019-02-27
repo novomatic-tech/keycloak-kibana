@@ -15,16 +15,16 @@ const configureTagsRoutes = (server, userProvider) => {
     server.route({
        method: 'GET',
        path: '/api/dashboard-tags',
-       handler: async (request, reply) => {
+       handler: async (request) => {
            const userId = request.auth.credentials.accessToken.content.sub;
            try {
                const tagMap = await tagService.getAllDashboardTags(userId);
                const tags = Array.from(tagMap.entries()).map(kv => {
                    return { id: kv[0], tags: kv[1] }
                });
-               return reply(tags);
+               return tags;
            } catch(e) {
-               return reply(Boom.internal(e.message));
+               throw Boom.internal(e.message);
            }
        }
     });
@@ -32,7 +32,7 @@ const configureTagsRoutes = (server, userProvider) => {
     server.route({
         method: 'PUT',
         path: '/api/saved_objects/dashboard/{dashboardId}/tags/{tag}',
-        handler: async (request, reply) => {
+        handler: async (request) => {
             const {dashboardId, tag} = request.params;
             const userId = request.auth.credentials.accessToken.content.sub;
 
@@ -40,12 +40,13 @@ const configureTagsRoutes = (server, userProvider) => {
 
             try {
                 await tagService.addDashboardTag(userId, dashboardId, tag);
-                return reply().code(204);
+                return null;
             } catch(e) {
-                return reply(Boom.internal(e.message));
+                throw Boom.internal(e.message);
             }
         },
         config: {
+            response: { emptyStatusCode: 204 },
             validate: requestValidation
         }
     });
@@ -61,19 +62,20 @@ const configureTagsRoutes = (server, userProvider) => {
 
             try {
                 await tagService.removeDashboardTag(userId, dashboardId, tag);
-                return reply().code(204);
+                return null;
             } catch(e) {
-                return reply (Boom.internal(e.message));
+                throw Boom.internal(e.message);
             }
         },
         config: {
+            response: { emptyStatusCode: 204 },
             validate: requestValidation
         }
     });
 
     server.ext('onPostHandler', async (request, reply) => {
         if (request.path !== '/api/saved_objects/_find') {
-            return reply.continue();
+            return reply.continue;
         }
         const savedObjects = request.response.source.saved_objects;
         const hasDashboards = _.some(savedObjects, item => item.type === 'dashboard');
@@ -86,7 +88,7 @@ const configureTagsRoutes = (server, userProvider) => {
                     item.attributes.tags = tags.get(item.id) || [];
                 });
         }
-        return reply.continue();
+        return reply.continue;
     });
 
 };

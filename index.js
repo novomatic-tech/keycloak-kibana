@@ -1,4 +1,4 @@
-import yar from 'yar8';
+import yar from 'yar';
 import keycloak, {KeycloakAdapter} from 'keycloak-hapi';
 import _, {get} from 'lodash';
 import {secureSavedObjects} from './server/services/SecureClusterFacade';
@@ -9,9 +9,9 @@ import Permissions from './public/authz/constants/Permissions';
 import configureUsersRoutes from './server/routes/users';
 import pkg from './package.json';
 import InternalGrant from './server/services/InternalGrant';
-import configureTagsRoutes from "./server/routes/tags";
-import UserProvider from "./server/services/UserProvider";
-import UserMapper from "./server/services/UserMapper";
+import configureTagsRoutes from './server/routes/tags';
+import UserProvider from './server/services/UserProvider';
+import UserMapper from './server/services/UserMapper';
 
 const KEYCLOAK_CONFIG_PREFIX = 'keycloak';
 const SERVER_CONFIG_PREFIX = 'server';
@@ -79,15 +79,17 @@ const configureBackChannelLogoutEndpoint = (server, basePath) => {
       request.headers['kbn-xsrf'] = 'k_logout';
       request.headers['kbn-version'] = pkg.kibana.version;
     }
-    return reply.continue();
+    return reply.continue;
   });
 };
 
 const interceptUnauthorizedRequests = (server, basePath, isAuthorized) => {
     server.ext('onPostAuth', (request, reply) => {
-        return isLoginOrLogout(request) || !request.auth.credentials || isAuthorized(request.auth.credentials)
-            ? reply.continue()
-            : reply(`<p>The user has insufficient permissions to access this page. <a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`);
+        if (!isLoginOrLogout(request) && !isAuthorized(request.auth.credentials)) {
+            const response = `<p>The user has insufficient permissions to access this page. <a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`;
+            return reply.response(response).takeover();
+        }
+        return reply.continue;
     });
 };
 
@@ -96,7 +98,7 @@ const propagateBearerToken = (server) => {
         if (request.auth.credentials && request.auth.credentials.accessToken) {
             request.headers.authorization = `Bearer ${request.auth.credentials.accessToken.token}`;
         }
-        return reply.continue();
+        return reply.continue;
     });
 };
 
@@ -164,50 +166,54 @@ export default function (kibana) { // TODO: The plugin should work with Kibana 6
                 enabled: Joi.boolean().default(true)
             }).default();
         },
-        init(server) {
+        async init(server) {
             const basePath = server.config().get(SERVER_CONFIG_PREFIX).basePath;
             const keycloakConfig = Object.assign(
                 server.config().get(KEYCLOAK_CONFIG_PREFIX),
                 { basePath, principalConversion, shouldRedirectUnauthenticated }
             );
-            return server.register({
-                register: yar,
+            await server.register({
+                plugin: yar,
                 options: {
                     storeBlank: false,
                     name: keycloakConfig.session.name,
                     maxCookieSize: 0,
                     cookieOptions: keycloakConfig.session.cookieOptions
                 }
-            }).then(() => {
-                return server.register({
-                    register: keycloak,
-                    options: keycloakConfig
-                });
-            }).then(() => {
-                return initializeInternalGrant(server, keycloakConfig);
-            }).then(() => {
-                server.auth.strategy('keycloak', 'keycloak', 'required');
-                configureBackChannelLogoutEndpoint(server, basePath);
-                interceptUnauthorizedRequests(server, basePath, getAuthorizationFor(keycloakConfig.requiredRoles));
-                exposePrincipal(server, keycloakConfig);
-
-                const userProvider = new UserProvider(keycloakConfig, server.getInternalGrant());
-                secureSavedObjects(server, getAuthorizationRules(keycloakConfig.acl.enabled));
-
-                if (keycloakConfig.acl.enabled) {
-                    const userMapper = new UserMapper(keycloakConfig);
-                    configureUsersRoutes(server, userProvider, userMapper);
-                    configurePermissionsRoutes(server, userProvider, userMapper);
-                }
-
-                if (keycloakConfig.tagging.enabled) {
-                    configureTagsRoutes(server, userProvider);
-                }
-
-                if (keycloakConfig.propagateBearerToken) {
-                    propagateBearerToken(server);
-                }
             });
+
+            await server.cache({})._cache.start();
+
+            await server.register({
+                plugin: keycloak,
+                options: keycloakConfig
+            });
+
+            await initializeInternalGrant(server, keycloakConfig);
+
+            server.auth.strategy('keycloak', 'keycloak');
+            server.auth.default('keycloak');
+
+            configureBackChannelLogoutEndpoint(server, basePath);
+            interceptUnauthorizedRequests(server, basePath, getAuthorizationFor(keycloakConfig.requiredRoles));
+            exposePrincipal(server, keycloakConfig);
+
+            const userProvider = new UserProvider(keycloakConfig, server.getInternalGrant());
+            secureSavedObjects(server, getAuthorizationRules(keycloakConfig.acl.enabled));
+
+            if (keycloakConfig.acl.enabled) {
+                const userMapper = new UserMapper(keycloakConfig);
+                configureUsersRoutes(server, userProvider, userMapper);
+                configurePermissionsRoutes(server, userProvider, userMapper);
+            }
+
+            if (keycloakConfig.tagging.enabled) {
+                configureTagsRoutes(server, userProvider);
+            }
+
+            if (keycloakConfig.propagateBearerToken) {
+                propagateBearerToken(server);
+            }
         }
     });
 }

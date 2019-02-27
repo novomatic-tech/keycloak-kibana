@@ -4,8 +4,15 @@ export default class InternalGrant {
         this._grantManager = grantManager;
     }
 
-    initialize = () => {
-        return this.getValue();
+    initialize = async () => {
+        try {
+            return await this.getValue();
+        } catch(e) {
+            console.error(e);
+            throw new Error('Unable to initialize internal user using client credentials grant. ' +
+                'Make sure Service Accounts are enabled for this client and correct values for ' +
+                'clientId and clientSecret were provided.');
+        }
     };
 
     getAccessToken = async () => {

@@ -108,6 +108,7 @@
     {
       "username": "service-account-kibana",
       "serviceAccountClientId": "kibana",
+      "enabled": true,
       "clientRoles": {
         "realm-management": [
           "view-users",
