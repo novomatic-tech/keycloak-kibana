@@ -393,8 +393,8 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
             const actions = [];
             if (this.props.isFeatureEnabled('tagging')) {
                 actions.push({
-                    name: 'Set as home',
-                    icon: 'globe',
+                    name: 'Pin as homepage',
+                    icon: 'pin',
                     enabled: (item) => !item.tags.includes('home'),
                     onClick: (item) => {
                         this.toggleDashboardTag(item.id, 'home', true);

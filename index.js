@@ -117,7 +117,7 @@ const initializeInternalGrant = (server, keycloakConfig) => {
     return internalGrant.initialize();
 };
 
-export default function (kibana) { // TODO: The plugin should work with Kibana 6.6.x by now.
+export default function (kibana) {
     return new kibana.Plugin({
         require: ['elasticsearch', 'kibana'],
         name: 'keycloak-kibana',

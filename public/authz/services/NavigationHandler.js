@@ -1,18 +1,16 @@
 import _ from "lodash";
-import {NAVIGATION_UPDATE} from "../constants/EventTypes";
 
 export default class NavigationHandler {
 
     constructor($rootScope, chrome) {
         this._chrome = chrome;
         this._activeNavLinks = [];
-        this._allNavLinks = [];
-        this._rootScope = $rootScope;
+        this._allNavLinks = []
     }
 
     initialize() {
-        this._activeNavLinks = this._chrome.getNavLinks();
-        this._allNavLinks = this._activeNavLinks.slice();
+        this._activeNavLinks = [];
+        this._allNavLinks = this._chrome.getNavLinks().slice();
     }
 
     getAllLinks() {
@@ -33,15 +31,11 @@ export default class NavigationHandler {
     }
 
     showLinks(linkIds) {
-        if (_.some(linkIds.map(this._showLink.bind(this)))) {
-            this._rootScope.$emit(NAVIGATION_UPDATE, this._activeNavLinks);
-        }
+        linkIds.map(this._showLink.bind(this));
     }
 
     hideLinks(linkIds) {
-        if (_.some(linkIds.map(this._hideLink.bind(this)))) {
-            this._rootScope.$emit(NAVIGATION_UPDATE, this._activeNavLinks);
-        }
+        linkIds.map(this._hideLink.bind(this))
     }
 
     _showLink(linkId) {
