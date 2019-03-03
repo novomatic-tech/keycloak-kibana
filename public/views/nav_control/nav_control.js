@@ -1,20 +1,32 @@
-import { constant } from 'lodash';
-import { chromeNavControlsRegistry } from 'ui/registry/chrome_nav_controls';
-import { uiModules } from 'ui/modules';
-import template from 'plugins/keycloak-kibana/views/nav_control/nav_control.html';
-import { PRINCIPAL_UPDATE } from '../../authz/constants/EventTypes';
+import {chromeNavControlsRegistry} from 'ui/registry/chrome_nav_controls';
+import {chromeHeaderNavControlsRegistry} from 'ui/registry/chrome_header_nav_controls';
+import {I18nContext} from 'ui/i18n';
+import React from 'react';
+import ReactDOM from 'react-dom';
 
-chromeNavControlsRegistry.register(constant({
-  name: 'keycloak',
-  order: 1000,
-  template
+import {uiModules} from 'ui/modules';
+import {NavControlSide} from 'ui/chrome/directives/header_global_nav';
+import UserNavControl from "../../authz/components/UserNavControl";
+
+chromeHeaderNavControlsRegistry.register((principalProvider) => ({
+    name: 'principal',
+    order: 1000,
+    side: NavControlSide.Right,
+    render(el) {
+        principalProvider.getPrincipal$().subscribe({
+            next: (principal) => {
+                const props = {user: principal};
+                ReactDOM.render(
+                    <I18nContext>
+                        <UserNavControl {...props} />
+                    </I18nContext>,
+                    el
+                );
+            }
+        });
+
+        // props.principal.accountUrl, props.principal.logoutUrl
+
+        return () => ReactDOM.unmountComponentAtNode(el);
+    }
 }));
-
-uiModules.get('app/keycloak', ['kibana']).controller('keycloakNavController', ($scope, globalNavState) => {
-  $scope.tooltipContent = (content) => {
-    return globalNavState.isOpen() ? undefined : content;
-  };
-  $scope.$root.$on(PRINCIPAL_UPDATE, (evt, principal) => {
-    $scope.user = principal;
-  });
-});

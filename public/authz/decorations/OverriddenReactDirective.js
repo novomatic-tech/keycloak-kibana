@@ -11,14 +11,14 @@
  * @see https://github.com/elastic/kibana/blob/v6.4.2/src/core_plugins/kibana/public/dashboard/index.js#L44
  * @see https://github.com/ngReact/ngReact#the-reactdirective-service
  */
-const OverriddenReactDirective = (reactComponent, propsFactory) => {
+const OverriddenReactDirective = (reactComponent, propsFactory, watchedProperties = undefined, config = {}) => {
   return function ($delegate, reactDirective, $injector) {
     const props = propsFactory
       ? $injector.invoke(propsFactory)
       : undefined;
 
     return $delegate.map(d => {
-      const directive = reactDirective(reactComponent, undefined, {}, props);
+            const directive = reactDirective(reactComponent, watchedProperties, config, props);
       directive.compile = () => directive.link;
       return Object.assign(d, directive);
     });
