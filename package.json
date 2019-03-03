@@ -4,7 +4,7 @@
   "description": "A Keycloak authorization plugin for Kibana",
   "main": "index.js",
   "kibana": {
-    "version": "6.6.1",
+    "version": "7.0.0",
     "templateVersion": "7.2.4"
   },
   "scripts": {

@@ -1,13 +1,17 @@
-import {PRINCIPAL_UPDATE, PRINCIPAL_UPDATE_ERROR} from "../constants/EventTypes";
 import AuthorizationError from "./AuthorizationError";
+import * as Rx from "rxjs";
 
 export default class PrincipalProvider {
 
-    constructor($rootScope, $http, chrome) {
+    constructor($http, chrome) {
         this._httpClient = $http;
         this._url = chrome.addBasePath('/api/principal');
-        this.$rootScope = $rootScope;
         this._principal = null;
+        this._principal$ = new Rx.Subject();
+    }
+
+    getPrincipal$() {
+        return this._principal$;
     }
 
     getPrincipal() {
@@ -28,10 +32,9 @@ export default class PrincipalProvider {
             if (window.onKibanaPrincipalUpdated) {
                 window.onKibanaPrincipalUpdated(response.data);
             }
-            provider.$rootScope.$emit(PRINCIPAL_UPDATE, provider._principal);
+            this._principal$.next(provider._principal);
             return response.data;
         }).catch(e => {
-            provider.$rootScope.$emit(PRINCIPAL_UPDATE_ERROR, e);
             throw new AuthorizationError(e.message); // TODO check whether this is 401
         });
     }

@@ -84,7 +84,7 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
     }
 
     debouncedFetch = _.debounce(async (filter) => {
-        const response = await this.props.find(filter);
+        const response = await this.props.findItems(filter);
 
         if (!this._isMounted) {
             return;
@@ -111,7 +111,7 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
 
     deleteSelectedItems = async () => {
         try {
-            await this.props.delete([this.state.selectedItem.id]);
+            await this.props.deleteItems([this.state.selectedItem.id]);
         } catch (error) {
             toastNotifications.addDanger({
                 title: `Unable to delete dashboard(s)`,
@@ -364,7 +364,7 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
         const onlyWhenUserCan = (permissions) => (record) => {
             const allowed = principal.scope.includes(Roles.MANAGE_KIBANA) || // TODO: put this logic to backend
                 (principal.scope.includes(Roles.MANAGE_DASHBOARDS) &&
-                _.some(permissions, permission => record.permissions.includes(permission)));
+                _.some(permissions, permission => record.permissions && record.permissions.includes(permission)));
             return allowed;
         };
 
@@ -406,7 +406,7 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
                 icon: 'pencil',
                 enabled: onlyWhenUserCan([Permissions.EDIT, Permissions.MANAGE]),
                 onClick: (item) => {
-                    window.location.href = `#${createDashboardEditUrl(item.id)}?_a=(viewMode:edit)`
+                    this.props.editItem(item);
                 }
             });
 
@@ -472,8 +472,10 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
             createButton = (
                 <EuiFlexItem grow={false}>
                     <EuiButton
-                        href={`#${DashboardConstants.CREATE_NEW_DASHBOARD_URL}`}
-                        data-test-subj="newDashboardLink">
+                        onClick={this.props.createItem}
+                        fill
+                        iconType="plusInCircle"
+                        data-test-subj="createDashboardPromptButton">
                         Create new dashboard
                     </EuiButton>
                 </EuiFlexItem>
@@ -526,8 +528,11 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
 }
 
 DashboardListing.propTypes = {
-    find: PropTypes.func.isRequired,
-    delete: PropTypes.func.isRequired,
+    createItem: PropTypes.func.isRequired,
+    findItems: PropTypes.func.isRequired,
+    deleteItems: PropTypes.func.isRequired,
+    editItem: PropTypes.func.isRequired,
+    getViewUrl: PropTypes.func.isRequired,
     listingLimit: PropTypes.number.isRequired,
     hideWriteControls: PropTypes.bool.isRequired,
     initialFilter: PropTypes.string,
