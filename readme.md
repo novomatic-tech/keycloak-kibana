@@ -32,7 +32,8 @@ Kibana version | Plugin version
 `5.4.3` | `1.0.0_5.4.3`
 `5.6.9` | `1.0.0_5.6.9`
 `6.2.4` | `1.0.0_6.2.4`
-
+`6.6.1` | `2.0.0_6.6.1`
+`7.0.0` | `3.0.0_7.0.0`
 
   The second version in the plugin (after `'_'`) must correspond to your Kibana version or the plugin will fail.
   If the required version is not available to download, you must build it yourself. Please read further for additional details on this topic.
@@ -47,7 +48,8 @@ Kibana version | Plugin version
   However, you can still try to build the plugin which works with
   your Kibana version (the plugin was tested with the major Kibana releases and hardly anything has changed):
 
-  - Just change the `kibana.version` property in the `package.json` file to your desired Kibana version (it should work with 5.x - 6.2.x)
+  - Checkout the branch which corresponds to your kibana version (`6.x`, `7.x` etc).
+  - Just change the `kibana.version` property in the `package.json` file to your desired Kibana version.
   - Build and install the plugin
 
 ## Configuration
