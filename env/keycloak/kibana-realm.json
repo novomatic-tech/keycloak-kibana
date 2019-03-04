@@ -4,6 +4,21 @@
   "requiredCredentials": [
     "password"
   ],
+  "roles": {
+    "client": {
+      "kibana": [
+        { "name": "discover" },
+        { "name": "view-visualizations" },
+        { "name": "manage-visualizations" },
+        { "name": "view-dashboards" },
+        { "name": "manage-dashboards" },
+        { "name": "view-searches" },
+        { "name": "manage-searches" },
+        { "name": "use-timelion" },
+        { "name": "use-dev-tools" }
+      ]
+    }
+  },
   "users": [
     {
       "username": "admin",
@@ -25,21 +40,79 @@
       }
     },
     {
-      "username": "trice",
+      "username": "user1",
+      "firstName": "Lady",
+      "lastName": "Gaga",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "user1"
+        }
+      ],
+      "groups": [ "Read-only" ],
+      "attributes": {
+        "country": "IT"
+      },
+      "clientRoles": {
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      }
+    },
+    {
+      "username": "user2",
       "firstName": "Travis",
       "lastName": "Rice",
       "enabled": true,
       "credentials": [
         {
           "type": "password",
-          "value": "trice"
+          "value": "user2"
         }
       ],
-      "groups": [ "Report Viewer" ],
+      "attributes": {
+        "country": "US"
+      },
+      "groups": [ "Standard user" ],
       "clientRoles": {
         "account": [
           "view-profile",
           "manage-account"
+        ]
+      }
+    },
+    {
+      "username": "user3",
+      "firstName": "Bradley",
+      "lastName": "Cooper",
+      "enabled": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "user3"
+        }
+      ],
+      "attributes": {
+        "country": "CA"
+      },
+      "groups": [ "Advanced user" ],
+      "clientRoles": {
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      }
+    },
+    {
+      "username": "service-account-kibana",
+      "serviceAccountClientId": "kibana",
+      "enabled": true,
+      "clientRoles": {
+        "realm-management": [
+          "view-users",
+          "manage-users"
         ]
       }
     }
@@ -47,11 +120,55 @@
   "groups": [
     {
       "name": "Administrator",
-      "path": "/Administrator"
+      "path": "/Administrator",
+      "clientRoles": {
+        "kibana": [
+          "discover",
+          "view-dashboards",
+          "manage-dashboards",
+          "view-visualizations",
+          "manage-visualizations",
+          "view-searches",
+          "manage-searches",
+          "use-timelion",
+          "use-dev-tools",
+          "manage-kibana"
+        ]
+      }
     },
     {
-      "name": "Report Viewer",
-      "path": "/Report Viewer"
+      "name": "Advanced user",
+      "path": "/Advanced user",
+      "clientRoles": {
+        "kibana": [
+          "discover",
+          "view-dashboards",
+          "manage-dashboards",
+          "view-visualizations",
+          "manage-visualizations",
+          "view-searches",
+          "manage-searches"
+        ]
+      }
+    },
+    {
+      "name": "Standard user",
+      "path": "/Standard user",
+      "clientRoles": {
+        "kibana": [
+          "view-dashboards",
+          "manage-dashboards"
+        ]
+      }
+    },
+    {
+      "name": "Read-only",
+      "path": "/Read-only",
+      "clientRoles": {
+        "kibana": [
+          "view-dashboards"
+        ]
+      }
     }
   ],
   "clients": [
@@ -63,6 +180,7 @@
       "baseUrl": "http://localhost:5601/",
       "bearerOnly": false,
       "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": true,
       "redirectUris": [
         "http://localhost:5601/*"
       ],
@@ -70,17 +188,55 @@
       "secret": "y8gSCns8hPTkQr6Zqwu2hPw6ScQDZNZz",
       "protocolMappers": [
         {
+          "name": "full name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-full-name-mapper",
+          "consentRequired": false,
+          "config": {
+            "id.token.claim": "true",
+            "access.token.claim": "false",
+            "userinfo.token.claim": "true"
+          }
+        },
+        {
+          "name": "email",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "email",
+            "id.token.claim": "true",
+            "access.token.claim": "false",
+            "claim.name": "email",
+            "jsonType.label": "String"
+          }
+        },
+        {
           "name": "username",
           "protocol": "openid-connect",
           "protocolMapper": "oidc-usermodel-property-mapper",
-          "consentRequired": true,
-          "consentText": "${username}",
+          "consentRequired": false,
           "config": {
             "userinfo.token.claim": "true",
             "user.attribute": "username",
             "id.token.claim": "true",
             "access.token.claim": "false",
             "claim.name": "preferred_username",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "family name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "lastName",
+            "id.token.claim": "true",
+            "access.token.claim": "false",
+            "claim.name": "family_name",
             "jsonType.label": "String"
           }
         },
@@ -96,14 +252,17 @@
           }
         },
         {
-          "name": "full name",
+          "name": "given name",
           "protocol": "openid-connect",
-          "protocolMapper": "oidc-full-name-mapper",
-          "consentRequired": true,
-          "consentText": "${fullName}",
+          "protocolMapper": "oidc-usermodel-property-mapper",
+          "consentRequired": false,
           "config": {
+            "userinfo.token.claim": "true",
+            "user.attribute": "firstName",
             "id.token.claim": "true",
-            "access.token.claim": "false"
+            "access.token.claim": "false",
+            "claim.name": "given_name",
+            "jsonType.label": "String"
           }
         },
         {
@@ -120,47 +279,84 @@
           }
         },
         {
-          "name": "family name",
+          "name": "Client IP Address",
           "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-property-mapper",
-          "consentRequired": true,
-          "consentText": "${familyName}",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
           "config": {
-            "userinfo.token.claim": "true",
-            "user.attribute": "lastName",
+            "user.session.note": "clientAddress",
             "id.token.claim": "true",
-            "access.token.claim": "false",
-            "claim.name": "family_name",
+            "access.token.claim": "true",
+            "claim.name": "clientAddress",
             "jsonType.label": "String"
           }
         },
         {
-          "name": "given name",
+          "name": "Client Host",
           "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-property-mapper",
-          "consentRequired": true,
-          "consentText": "${givenName}",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
           "config": {
-            "userinfo.token.claim": "true",
-            "user.attribute": "firstName",
+            "user.session.note": "clientHost",
             "id.token.claim": "true",
-            "access.token.claim": "false",
-            "claim.name": "given_name",
+            "access.token.claim": "true",
+            "claim.name": "clientHost",
             "jsonType.label": "String"
           }
         },
         {
-          "name": "email",
+          "name": "Client ID",
           "protocol": "openid-connect",
-          "protocolMapper": "oidc-usermodel-property-mapper",
-          "consentRequired": true,
-          "consentText": "${email}",
+          "protocolMapper": "oidc-usersessionmodel-note-mapper",
+          "consentRequired": false,
+          "config": {
+            "user.session.note": "clientId",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "clientId",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "country",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "userinfo.token.claim": "false",
+            "user.attribute": "country",
+            "id.token.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "country",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "kibana.dashboards.favourite",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "multivalued": "true",
+            "userinfo.token.claim": "true",
+            "user.attribute": "kibana.dashboards.favourite",
+            "id.token.claim": "false",
+            "access.token.claim": "false",
+            "claim.name": "kibana.dashboards.favourite",
+            "jsonType.label": "String"
+          }
+        },
+        {
+          "name": "kibana.dashboards.home",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
           "config": {
             "userinfo.token.claim": "true",
-            "user.attribute": "email",
-            "id.token.claim": "true",
+            "user.attribute": "kibana.dashboards.home",
+            "id.token.claim": "false",
             "access.token.claim": "false",
-            "claim.name": "email",
+            "claim.name": "kibana.dashboards.home",
             "jsonType.label": "String"
           }
         }

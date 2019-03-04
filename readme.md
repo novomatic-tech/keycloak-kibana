@@ -32,7 +32,8 @@ Kibana version | Plugin version
 `5.4.3` | `1.0.0_5.4.3`
 `5.6.9` | `1.0.0_5.6.9`
 `6.2.4` | `1.0.0_6.2.4`
-
+`6.6.1` | `2.0.0_6.6.1`
+`7.0.0` | `3.0.0_7.0.0`
 
   The second version in the plugin (after `'_'`) must correspond to your Kibana version or the plugin will fail.
   If the required version is not available to download, you must build it yourself. Please read further for additional details on this topic.
@@ -47,7 +48,8 @@ Kibana version | Plugin version
   However, you can still try to build the plugin which works with
   your Kibana version (the plugin was tested with the major Kibana releases and hardly anything has changed):
 
-  - Just change the `kibana.version` property in the `package.json` file to your desired Kibana version (it should work with 5.x - 6.2.x)
+  - Checkout the branch which corresponds to your kibana version (`6.x`, `7.x` etc).
+  - Just change the `kibana.version` property in the `package.json` file to your desired Kibana version.
   - Build and install the plugin
 
 ## Configuration
@@ -69,6 +71,11 @@ Parameter | Description | Default
 `keycloak.session.cookieOptions.isSecure` | Determines whether or not to transfer session cookies using TLS/SSL. | `false`
 `keycloak.session.cookieOptions.isHttpOnly` | Determines whether or not to set HttpOnly option in cookie. Cookies, when used with the HttpOnly cookie flag, are not accessible through JavaScript, and are immune to XSS. | `false`
 `keycloak.requiredRoles` | A list of Keycloak roles a user has to be assigned to in order to access Kibana. By default, any authenticated user can use Kibana. When this property is set only users with certain roles assigned can access Kibana. | `[]`
+`keycloak.propagateBearerToken` | A boolean value determining whether `Authorization: Bearer [ACCESS_TOKEN]` header should be propagated to Elasticsearch. | `true`
+`keycloak.acl.enabled` | A toggle for dashboard ownership feature. When enabled, each created dashboard has its owner and cannot be viewed, edited or managed by others unless shared. | `false`
+`keycloak.acl.ownerAttribute`| OpenID Connect ID Token attribute which will be used as the user identifier for ACLs. Possible values are *sub*, *preferred_username*, *email*. | `sub`
+`keycloak.tagging.enabled` | A toggle for dashboard tagging feature. When enabled users are able to manage their favourite and home dashboards. | `false`
+
 
 Sample configuration section can be found in the `env/kibana/kibana.yml` file.
 
