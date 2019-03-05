@@ -24,9 +24,6 @@ chromeHeaderNavControlsRegistry.register((principalProvider) => ({
                 );
             }
         });
-
-        // props.principal.accountUrl, props.principal.logoutUrl
-
         return () => ReactDOM.unmountComponentAtNode(el);
     }
 }));
