@@ -15,6 +15,7 @@ services:
       - "8080:8080"
     volumes:
       - ./env/keycloak/kibana-realm.json:/opt/jboss/keycloak/kibana-realm.json
+      
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
     expose:
@@ -23,3 +24,10 @@ services:
       ES_JAVA_OPTS: -Xms512m -Xmx512m
     ports:
       - "9200:9200"
+
+  cerebro:
+    image: lmenezes/cerebro:latest
+    container_name: cerebro
+    restart: always
+    ports:
+      - "9000:9000"

@@ -76,6 +76,8 @@ class DeleteRule {
             if (!principal.canManage(document._source)) {
                 throw Boom.forbidden(`The user has no permissions to delete this resource.`);
             }
+
+            clientParams.version = document._version;
         }
         return await cluster.processAction(action);
     }
@@ -102,11 +104,13 @@ class UpdateRule {
             const {id, type, index} = clientParams;
             const document = await cluster.callWithInternalUser('get',
                 {id, type, index, ignore: 404}, {});
+
             if (!principal.canEdit(document._source) &&
                 !principal.canManage(document._source)) {
                 throw Boom.forbidden(`The user has no permissions to update this resource.`);
             }
             clientParams.body.acl = document.found ? document._source.acl : principal.createNewAcl();
+            clientParams.version = document._version;
         }
         return await cluster.processAction(action); // TODO: introduce optimistic concurrency control.
     }
