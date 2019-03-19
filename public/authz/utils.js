@@ -4,13 +4,13 @@ export const isKibanaApp = () => (window.location.pathname || '').endsWith('/app
 
 export const isFeatureEnabled = (featureName) => chrome.getInjected(`keycloak.features.${featureName}`);
 
-export const isDirectiveExist = (module, directive) => module._invokeQueue
+const directiveExists = (module, directive) => module._invokeQueue
     .filter(item => 'directive' === item[1])
     .map(item => item[2][0])
     .includes(directive);
 
-export const decorate = (module, directive, decorator) => {
-    if (isDirectiveExist(module, directive)) {
+export const decorateDirective = (module, directive, decorator) => {
+    if (directiveExists(module, directive)) {
         module.decorator(directive.concat('Directive'), decorator);
     }
 };
