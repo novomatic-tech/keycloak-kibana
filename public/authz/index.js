@@ -15,17 +15,17 @@ import DashboardListingDecorator from "./decorations/DashboardListingDecorator";
 import HomeRouteDecoration from "./decorations/HomeRouteDecoration";
 
 import authorizationRules from "./authorizationRules";
-import {isFeatureEnabled, isKibanaApp} from "./utils";
+import {isFeatureEnabled, isKibanaApp, decorate} from "./utils";
 
-uiModules.get('kibana', ['ngRoute', 'react'])
-    .decorator('appSwitcherDirective', AppSwitcherDecorator);
+const kibanaApp = uiModules.get('kibana', ['ngRoute', 'react']);
+decorate(kibanaApp, 'appSwitcher', AppSwitcherDecorator);
 
 if (isKibanaApp()) {
-    const dashboardApp = uiModules.get('app/dashboard')
-        .decorator('dashboardAppDirective', DashboardAppDecorator);
+    const dashboardApp = uiModules.get('app/dashboard');
+    decorate(dashboardApp, 'dashboardApp', DashboardAppDecorator);
 
     if (isFeatureEnabled('acl') || isFeatureEnabled('tagging')) {
-        dashboardApp.decorator('dashboardListingDirective', DashboardListingDecorator);
+        decorate(dashboardApp, 'dashboardListing', DashboardListingDecorator);
     }
 }
 
