@@ -112,7 +112,7 @@ class UpdateRule {
             clientParams.body.acl = document.found ? document._source.acl : principal.createNewAcl();
             clientParams.version = document._version;
         }
-        return await cluster.processAction(action); // TODO: introduce optimistic concurrency control.
+        return await cluster.processAction(action);
     }
 }
 
