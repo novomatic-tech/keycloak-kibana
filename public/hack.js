@@ -1,7 +1,9 @@
 import $ from 'jquery';
 import Roles from "./authz/constants/Roles";
 
-window.onKibanaPrincipalUpdated = function(principal) {
+const STYLE_ID = "kc-elements-to-disable-id";
+
+window.onKibanaPrincipalUpdated = function (principal) {
     const manageDashboardsControls = [
         'dashboard-listing [data-test-subj=newDashboardLink]',
         'dashboard-listing th.euiTableHeaderCellCheckbox',
@@ -46,7 +48,7 @@ window.onKibanaPrincipalUpdated = function(principal) {
         elementsToDisable = elementsToDisable.concat(manageSearchesControls);
     }
 
-    // TODO: make it updatable
-    const style = $(`<style>${elementsToDisable.join(', ')} { display: none !important;  }</style>`);
+    const style = $(`<style id="${STYLE_ID}">${elementsToDisable.join(', ')} { display: none !important;  }</style>`);
+    $('head').find(`.${STYLE_ID}`).remove();
     $('head').append(style);
 };

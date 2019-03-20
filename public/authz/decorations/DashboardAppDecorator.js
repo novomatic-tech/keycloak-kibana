@@ -18,6 +18,10 @@ export default function DashboardAppDecorator($delegate) {
             const principal = principalProvider.getPrincipal();
             const newDashboardConfig = {
                 getHideWriteControls: () => {
+                    if (principal.scope.includes(Roles.MANAGE_KIBANA)) {
+                        return false;
+                    }
+
                     const canManageDashboards = principal.scope.includes(Roles.MANAGE_DASHBOARDS);
                     if (!canManageDashboards) {
                         return true;

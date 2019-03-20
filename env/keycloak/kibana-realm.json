@@ -157,7 +157,8 @@
       "clientRoles": {
         "kibana": [
           "view-dashboards",
-          "manage-dashboards"
+          "manage-dashboards",
+          "view-searches"
         ]
       }
     },
