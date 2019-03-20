@@ -99,3 +99,31 @@ Sample configuration section can be found in the `env/kibana/kibana.yml` file.
 
 - Visit `localhost:5601` and log in as `trice:trice` to try it out.
 
+## Develop
+
+  To develop this plugin you need proper `kibana` version as described above. This plugin should be located:
+```
+  .
+  ├── kibana
+  └── kibana-extra/keycloak-kibana
+```
+  Where kibana is folder with `kibana` and `keycloak-kibana` is folder with this repository.
+  
+- change lines in `keycloak-kibana.package.json` 
+  
+```bash
+    # From:
+    "@elastic/eslint-config-kibana": "^0.14.0",
+    "@elastic/eslint-import-resolver-kibana": "^0.9.0",
+    "@elastic/plugin-helpers": "^7.1.3",
+    # To:
+    "@elastic/eslint-config-kibana": "link:../../kibana/packages/eslint-config-kibana",
+    "@elastic/eslint-import-resolver-kibana": "link:../../kibana/packages/kbn-eslint-import-resolver-kibana",
+    "@kbn/plugin-helpers": "link:../../kibana/packages/kbn-plugin-helpers",
+```
+- To start developing execute in `keycloak-kibana`:
+
+``` bash
+  yarn kbn bootstrap
+  yarn start --dev --oss --no-base-path
+```
