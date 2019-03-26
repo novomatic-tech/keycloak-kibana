@@ -1,19 +1,33 @@
-import { uiModules } from 'ui/modules';
+import {uiModules} from 'ui/modules';
+import {addInterceptor} from 'ui/kfetch';
+import Promise from 'bluebird';
 
-uiModules
-  .get('kibana')
-  .config(($provide, $httpProvider) => {
-    $provide.factory('unauthorizedInterceptor', function ($q) {
-      return {
-        'responseError': function (rejection) {
-          if (rejection.status === 401) { // TODO: 401 is still not completely managed. Test it and fix it!
-            return window.location.reload(true);
-          }
+const refreshPage = () => {
+    window.location.reload(true);
+};
 
-          return $q.reject(rejection);
-        }
-      };
+const responseErrorHandler = (status, response) => {
+    if (status === 401) {
+        refreshPage();
+    }
+    return Promise.reject(response);
+};
+
+const httpInterceptor = {
+    responseError: response => {
+        return responseErrorHandler(response.status, response);
+    }
+};
+
+const kFetchInterceptor = {
+    responseError: response => {
+        return responseErrorHandler(response.res.status, response);
+    }
+};
+
+uiModules.get('kibana')
+    .factory('httpInterceptor', () => httpInterceptor)
+    .config($httpProvider => {
+        $httpProvider.interceptors.push('httpInterceptor');
+        addInterceptor(kFetchInterceptor);
     });
-
-    $httpProvider.interceptors.push('unauthorizedInterceptor');
-  });
