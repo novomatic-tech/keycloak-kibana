@@ -12,16 +12,16 @@
  * @see https://github.com/ngReact/ngReact#the-reactdirective-service
  */
 const OverriddenReactDirective = (reactComponent, propsFactory) => {
-    return function ($delegate, reactDirective, $injector) {
-        const props = propsFactory
-            ? $injector.invoke(propsFactory)
-            : undefined;
+  return function ($delegate, reactDirective, $injector) {
+    const props = propsFactory
+      ? $injector.invoke(propsFactory)
+      : undefined;
 
-        return $delegate.map(d => {
-            const directive = reactDirective(reactComponent, undefined, {}, props);
-            directive.compile = () => directive.link;
-            return Object.assign(d, directive);
-        });
-    };
+    return $delegate.map(d => {
+      const directive = reactDirective(reactComponent, undefined, {}, props);
+      directive.compile = () => directive.link;
+      return Object.assign(d, directive);
+    });
+  };
 };
 export default OverriddenReactDirective;
