@@ -11,7 +11,8 @@ import { isFeatureEnabled } from '../utils';
  */
 export default function DashboardAppDecorator($delegate) {
   return $delegate.map(del => {
-    const baseControler = del.controller;
+    const baseController = del.controller;
+
     function newController($scope, $rootScope, $route, $routeParams, getAppState,
       dashboardConfig, localStorage, i18n, principalProvider) {
       const dashboard = $route.current.locals.dash;
@@ -30,12 +31,15 @@ export default function DashboardAppDecorator($delegate) {
             return false;
           }
           return dashboard.permissions &&
-                        !dashboard.permissions.includes(Permissions.EDIT) &&
-                        !dashboard.permissions.includes(Permissions.MANAGE);
+            !dashboard.permissions.includes(Permissions.EDIT) &&
+            !dashboard.permissions.includes(Permissions.MANAGE);
         }
       };
-      return baseControler.bind(this).call(del, $scope, $rootScope, $route, $routeParams, getAppState, newDashboardConfig, localStorage, i18n);
+      return baseController
+        .bind(this)
+        .call(del, $scope, $rootScope, $route, $routeParams, getAppState, newDashboardConfig, localStorage, i18n);
     }
+
     del.controller = newController;
     return del;
   });

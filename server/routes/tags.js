@@ -1,6 +1,7 @@
 import TagService from '../services/TagService';
 import Joi from 'joi';
 import _ from 'lodash';
+import Boom from 'boom';
 
 const configureTagsRoutes = (server, userProvider) => {
 
@@ -54,7 +55,7 @@ const configureTagsRoutes = (server, userProvider) => {
   server.route({
     method: 'DELETE',
     path: '/api/saved_objects/dashboard/{dashboardId}/tags/{tag}',
-    handler: async (request, reply) => {
+    handler: async (request) => {
       const { dashboardId, tag } = request.params;
       const userId = request.auth.credentials.accessToken.content.sub;
 

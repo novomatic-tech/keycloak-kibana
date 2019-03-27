@@ -1,6 +1,6 @@
 import yar from 'yar';
 import keycloak, { KeycloakAdapter } from 'keycloak-hapi';
-import _, { get } from 'lodash';
+import _ from 'lodash';
 import { secureSavedObjects } from './server/services/SecureClusterFacade';
 import { getAuthorizationRules } from './server/services/authorizationRules';
 import Principal from './server/services/Principal';
@@ -50,8 +50,8 @@ const validateScope = (credentials, scope, type) => {
 const getAuthorizationFor = (requiredRoles) => {
   const scope = setupRequiredScope(requiredRoles);
   return (credentials) => validateScope(credentials, scope, 'required') ||
-        validateScope(credentials, scope, 'selection') ||
-        validateScope(credentials, scope, 'forbidden');
+    validateScope(credentials, scope, 'selection') ||
+    validateScope(credentials, scope, 'forbidden');
 };
 
 const isLoginOrLogout = (request) => {
@@ -86,7 +86,10 @@ const configureBackChannelLogoutEndpoint = (server, basePath) => {
 const interceptUnauthorizedRequests = (server, basePath, isAuthorized) => {
   server.ext('onPostAuth', (request, reply) => {
     if (!isLoginOrLogout(request) && !isAuthorized(request.auth.credentials)) {
-      const response = `<p>The user has insufficient permissions to access this page. <a href="${basePath || ''}/sso/logout">Logout and try as another user</a></p>`;
+      const response = `<p>
+                            The user has insufficient permissions to access this page.
+                            <a href="${basePath || ''}/sso/logout">Logout and try as another user</a>
+                        </p>`;
       return reply.response(response).takeover();
     }
     return reply.continue;

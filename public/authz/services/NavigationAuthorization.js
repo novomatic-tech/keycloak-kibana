@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import { PRINCIPAL_UPDATE } from '../constants/EventTypes';
 
 export default class NavigationAuthorization {

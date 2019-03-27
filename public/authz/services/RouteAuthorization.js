@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import AuthorizationError from './AuthorizationError';
 
 export const unauthorizedPath = '/unauthorized';

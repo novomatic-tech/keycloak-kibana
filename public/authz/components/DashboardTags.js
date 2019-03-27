@@ -1,10 +1,10 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import HeartSolidIcon from '../../images/heart-solid.svg';
 import HeartRegularIcon from '../../images/heart-regular.svg';
 import { EuiIcon } from '@elastic/eui';
 
-const Icon = ({ src, size, alt, onClick, style }) => (
+const Icon = ({ src, size, alt, onClick }) => (
   <img onClick={onClick} src={src} style={{ cursor: 'pointer', margin: '0 2px', opacity: '0.7' }} height={size} width={size} alt={alt}/>
 );
 
@@ -22,7 +22,7 @@ export default class DashboardTags extends React.Component { // TODO: make it pr
     const icons = [];
 
     const homeIcon = (
-      <EuiIcon type="pin" />
+      <EuiIcon type="pin"/>
     );
     const favouriteIcon = (
       <Icon
