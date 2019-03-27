@@ -1,3 +1,10 @@
+## 2.0.0-alpha2
+
+* Handle unauthorized HTTP responses in Kibana
+* Introduce concurrency control to update and delete on dashboards in kibana
+* Fix bug with UI runtime error when Kibana monitor page is displayed
+* Fix invalid UI controls being hidden with different roles assigned
+
 ## 1.1.0
 
 * Add support for [Back-Channel Logout](https://openid.net/specs/openid-connect-backchannel-1_0.html) procedure
