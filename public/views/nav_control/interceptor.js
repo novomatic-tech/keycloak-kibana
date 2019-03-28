@@ -1,4 +1,5 @@
 import { uiModules } from 'ui/modules';
+// eslint-disable-next-line import/no-unresolved
 import { addInterceptor } from 'ui/kfetch';
 import Promise from 'bluebird';
 

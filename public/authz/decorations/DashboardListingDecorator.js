@@ -10,6 +10,7 @@ import { isFeatureEnabled } from '../utils';
  * @see https://github.com/elastic/kibana/blob/v6.4.2/src/core_plugins/kibana/public/dashboard/listing/dashboard_listing.js#L52
  * @see https://github.com/elastic/kibana/blob/v6.4.2/src/core_plugins/kibana/public/dashboard/index.js#L44
  */
+// eslint-disable-next-line new-cap
 export default OverriddenReactDirective(DashboardListing,
   (principalProvider, userProvider, dashboardPermissions, tagService) => {
     return {
