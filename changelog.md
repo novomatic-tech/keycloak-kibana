@@ -1,9 +1,18 @@
+## Upcoming 2.0.0-alpha3
+
 ## 2.0.0-alpha2
 
 * Handle unauthorized HTTP responses in Kibana
 * Introduce concurrency control to update and delete on dashboards in kibana
 * Fix bug with UI runtime error when Kibana monitor page is displayed
 * Fix invalid UI controls being hidden with different roles assigned
+
+## 2.0.0-alpha1
+
+* Allow to propagate bearer token to elasticsearch
+* Add authorization for angular routes and Kibana menu items
+* Add dashboard ownership
+* Add dashboard tagging
 
 ## 1.1.0
 
