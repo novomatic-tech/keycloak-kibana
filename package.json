@@ -32,7 +32,8 @@
     "eslint-plugin-mocha": "^4.9.0",
     "eslint-plugin-prefer-object-spread": "^1.2.1",
     "eslint-plugin-react": "^7.0.1",
-    "expect.js": "^0.3.1"
+    "expect.js": "^0.3.1",
+    "jquery": "^3.3.1"
   },
   "dependencies": {
     "angular-resource": "1.4.9",
