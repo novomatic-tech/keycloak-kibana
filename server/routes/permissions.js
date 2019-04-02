@@ -13,8 +13,8 @@ const configurePermissionsRoutes = (server, userProvider, userMapper) => {
         userMapper,
         principal: request.getPrincipal(),
         cluster,
-                type: '_doc',
-                index: '.kibana' // TODO: read .kibana from config
+        type: '_doc',
+        index: '.kibana' // TODO: read .kibana from config
       });
     }
   };

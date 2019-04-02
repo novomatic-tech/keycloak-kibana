@@ -68,7 +68,7 @@ const principalConversion = (principal) => {
   const modifiedPrincipal = ({ ...principal });
   delete modifiedPrincipal.accessToken;
   delete modifiedPrincipal.idToken;
-    modifiedPrincipal.email = principal.accessToken.content.email;
+  modifiedPrincipal.email = principal.accessToken.content.email;
   return modifiedPrincipal;
 };
 

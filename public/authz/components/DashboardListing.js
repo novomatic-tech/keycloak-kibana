@@ -76,7 +76,7 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
   }
 
   debouncedFetch = _.debounce(async (filter) => {
-        const response = await this.props.findItems(filter);
+    const response = await this.props.findItems(filter);
 
     if (!this._isMounted) {
       return;
@@ -103,7 +103,7 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
 
   deleteSelectedItems = async () => {
     try {
-            await this.props.deleteItems([this.state.selectedItem.id]);
+      await this.props.deleteItems([this.state.selectedItem.id]);
     } catch (error) {
       toastNotifications.addDanger({
         title: `Unable to delete dashboard(s)`,
@@ -399,7 +399,7 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
         icon: 'pencil',
         enabled: onlyWhenUserCan([Permissions.EDIT, Permissions.MANAGE]),
         onClick: (item) => {
-                    this.props.editItem(item);
+          this.props.editItem(item);
         }
       });
 
@@ -465,10 +465,11 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
       createButton = (
         <EuiFlexItem grow={false}>
           <EuiButton
-                        onClick={this.props.createItem}
-                        fill
-                        iconType="plusInCircle"
-                        data-test-subj="createDashboardPromptButton">
+            onClick={this.props.createItem}
+            fill
+            iconType="plusInCircle"
+            data-test-subj="createDashboardPromptButton"
+          >
             Create new dashboard
           </EuiButton>
         </EuiFlexItem>
@@ -521,11 +522,11 @@ export class DashboardListing extends React.Component { // TODO: make it pretty!
 }
 
 DashboardListing.propTypes = {
-    createItem: PropTypes.func.isRequired,
-    findItems: PropTypes.func.isRequired,
-    deleteItems: PropTypes.func.isRequired,
-    editItem: PropTypes.func.isRequired,
-    getViewUrl: PropTypes.func.isRequired,
+  createItem: PropTypes.func.isRequired,
+  findItems: PropTypes.func.isRequired,
+  deleteItems: PropTypes.func.isRequired,
+  editItem: PropTypes.func.isRequired,
+  getViewUrl: PropTypes.func.isRequired,
   listingLimit: PropTypes.number.isRequired,
   hideWriteControls: PropTypes.bool.isRequired,
   initialFilter: PropTypes.string,

@@ -18,7 +18,7 @@ const OverriddenReactDirective = (reactComponent, propsFactory, watchedPropertie
       : undefined;
 
     return $delegate.map(d => {
-            const directive = reactDirective(reactComponent, watchedProperties, config, props);
+      const directive = reactDirective(reactComponent, watchedProperties, config, props);
       directive.compile = () => directive.link;
       return Object.assign(d, directive);
     });
