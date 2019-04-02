@@ -1,4 +1,6 @@
 ---
 settings:
   import/resolver: "@elastic/eslint-import-resolver-kibana"
+  react:
+    version: '16.3'
 extends: "@elastic/eslint-config-kibana"
