@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved,import/named */
 import OverriddenReactDirective from './OverriddenReactDirective';
 import { Header } from 'ui/chrome/directives/header_global_nav/components/header';
 import { wrapInI18nContext } from 'ui/i18n';
@@ -27,4 +28,5 @@ const watchedProps = [ // scope accepted by directive, passed in as React props
   'appTitle',
   'isVisible',
 ];
+// eslint-disable-next-line new-cap
 export default OverriddenReactDirective(component, propsFactory, watchedProps);
