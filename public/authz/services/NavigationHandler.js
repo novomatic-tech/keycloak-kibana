@@ -1,5 +1,6 @@
 import { map } from 'rxjs/operators';
 import * as Rx from 'rxjs';
+import _ from 'lodash';
 
 export default class NavigationHandler {
 

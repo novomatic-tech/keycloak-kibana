@@ -1,8 +1,6 @@
 import PropTypes from 'prop-types';
 import { FormattedMessage } from '@kbn/i18n/react';
-import React, {
-  Component,
-} from 'react';
+import React from 'react';
 
 import {
   EuiAvatar,

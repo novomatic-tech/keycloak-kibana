@@ -1,5 +1,4 @@
 import OverriddenReactDirective from './OverriddenReactDirective';
-
 import { Header } from 'ui/chrome/directives/header_global_nav/components/header';
 import { wrapInI18nContext } from 'ui/i18n';
 import { chromeHeaderNavControlsRegistry } from 'ui/registry/chrome_header_nav_controls';
