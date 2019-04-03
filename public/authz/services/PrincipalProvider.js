@@ -1,17 +1,17 @@
 import AuthorizationError from './AuthorizationError';
-import * as Rx from "rxjs";
+import * as Rx from 'rxjs';
 
 export default class PrincipalProvider {
 
-    constructor($http, chrome) {
+  constructor($http, chrome) {
     this._httpClient = $http;
     this._url = chrome.addBasePath('/api/principal');
     this._principal = null;
-        this._principal$ = new Rx.Subject();
-    }
+    this._principal$ = new Rx.Subject();
+  }
 
-    getPrincipal$() {
-        return this._principal$;
+  getPrincipal$() {
+    return this._principal$;
   }
 
   getPrincipal() {
@@ -32,7 +32,7 @@ export default class PrincipalProvider {
       if (window.onKibanaPrincipalUpdated) {
         window.onKibanaPrincipalUpdated(response.data);
       }
-            this._principal$.next(provider._principal);
+      this._principal$.next(provider._principal);
       return response.data;
     }).catch(e => {
       throw new AuthorizationError(e.message); // TODO check whether this is 401

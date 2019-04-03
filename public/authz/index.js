@@ -11,7 +11,7 @@ import TagService from './services/TagService';
 import DashboardAppDecorator from './decorations/DashboardAppDecorator';
 import DashboardListingDecorator from './decorations/DashboardListingDecorator';
 import HomeRouteDecoration from './decorations/HomeRouteDecoration';
-import HeaderGlobalNavDecorator from "./decorations/HeaderGlobalNavDecorator";
+import HeaderGlobalNavDecorator from './decorations/HeaderGlobalNavDecorator';
 
 import authorizationRules from './authorizationRules';
 import { isFeatureEnabled, isKibanaApp, decorateDirective } from './utils';
@@ -36,7 +36,7 @@ uiModules.get('app/keycloak', ['kibana'])
   .service('dashboardPermissions', DashboardPermissions)
   .service('userProvider', UserProvider)
   .service('tagService', TagService)
-    .run((routeAuthorization) => {
+  .run((routeAuthorization) => {
     routeAuthorization.initialize();
   });
 
