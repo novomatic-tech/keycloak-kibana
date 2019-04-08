@@ -15,9 +15,9 @@ services:
       - "8080:8080"
     volumes:
       - ./env/keycloak/kibana-realm.json:/opt/jboss/keycloak/kibana-realm.json
-      
+
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.2
     expose:
       - 9200
     environment:

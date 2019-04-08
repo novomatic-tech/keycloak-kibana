@@ -4,12 +4,19 @@ A Keycloak authorization plugin for Kibana
 
 ## Building the plugin
 
+**Prerequisites:**
+
+- Node.js - v10.15.2
+- Yarn - min. v1.10.1
+
+**Building:**
+
 ```bash
-$ npm install
-$ npm run build
+$ yarn install
+$ yarn build
 ```
 
-Artifacts will be produced in the `build` directory.
+Artifacts will be produced in the `kibana-extra/keycloak-kibana/build` directory.
 
 ## Installing the plugin
 
@@ -17,10 +24,10 @@ Before you install the plugin, you must have Kibana installed in the `$KIBANA_HO
 You can download it [here](https://www.elastic.co/downloads/kibana).
 
 ```bash
-# Remove the  previously installed plugin (optional)
+# Remove the previously installed plugin (optional)
 $ $KIBANA_HOME/bin/kibana-plugin.sh remove keycloak-kibana
 # Install a new version of plugin
-$ $KIBANA_HOME/bin/kibana-plugin.sh install file:./build/keycloak-kibana-0.1.0.zip
+$ $KIBANA_HOME/bin/kibana-plugin.sh install file:./kibana-extra/keycloak-kibana/build/keycloak-kibana-0.1.0.zip
 ```
 
 ## Versioning and compatibility
@@ -33,24 +40,25 @@ Kibana version | Plugin version
 `5.6.9` | `1.0.0_5.6.9`
 `6.2.4` | `1.0.0_6.2.4`
 `6.6.1` | `2.0.0_6.6.1`
+`6.6.2` | `2.0.0_6.6.2`
 `7.0.0` | `3.0.0_7.0.0`
 
-  The second version in the plugin (after `'_'`) must correspond to your Kibana version or the plugin will fail.
-  If the required version is not available to download, you must build it yourself. Please read further for additional details on this topic.
+The second version in the plugin (after `'_'`) must correspond to your Kibana version or the plugin will fail.
+If the required version is not available to download, you must build it yourself. Please read further for additional details on this topic.
 
-  **Racionale**
+**Racionale**
 
-  Kibana has quite rigid plugin compatibility model - each plugin must include the exact version of Kibana it is compatible with. 
-  This requirement enforces releasing a new version of the plugin each time a new version of Kibana is released (even when only "patch" changes were released). 
-  
-  Since it's hard to keep up with Kibana release train,
-  this repository does not attempt to do it.
-  However, you can still try to build the plugin which works with
-  your Kibana version (the plugin was tested with the major Kibana releases and hardly anything has changed):
+Kibana has quite rigid plugin compatibility model - each plugin must include the exact version of Kibana it is compatible with. 
+This requirement enforces releasing a new version of the plugin each time a new version of Kibana is released (even when only "patch" changes were released). 
 
-  - Checkout the branch which corresponds to your kibana version (`6.x`, `7.x` etc).
-  - Just change the `kibana.version` property in the `package.json` file to your desired Kibana version.
-  - Build and install the plugin
+Since it's hard to keep up with Kibana release train,
+this repository does not attempt to do it.
+However, you can still try to build the plugin which works with
+your Kibana version (the plugin was tested with the major Kibana releases and hardly anything has changed):
+
+- Checkout the branch which corresponds to your kibana version (`6.x`, `7.x` etc).
+- Just change the `kibana.version` property in the `package.json` file to your desired Kibana version.
+- Build and install the plugin
 
 ## Configuration
 
@@ -87,43 +95,11 @@ Sample configuration section can be found in the `env/kibana/kibana.yml` file.
   $ docker-compose up -d
   ```
 
-- Configure the Kibana by coping the content of the the `env/kibana/kibana.yml` file at the end of the `$KIBANA_HOME/config/kibana.yml` file.
-- Install the plugin in a suitable version and run Kibana.
+- Install all dependency along with Kibana using yarn and start Kibana with plugins
 
   ```bash
-  # The second version after '_' must correspond to your Kibana version or it will fail.
-  # If the required version is not available, please refer to the Compatibility section of this guide. 
-  $ $KIBANA_HOME/bin/kibana-plugin.sh install https://github.com/novomatic-tech/keycloak-kibana/releases/download/1.0.0/keycloak-kibana-1.0.0_6.2.4.zip
-  $ $KIBANA_HOME/bin/kibana.sh
+  $ yarn install
+  $ yarn start
   ```
 
-- Visit `localhost:5601` and log in as `trice:trice` to try it out.
-
-## Develop
-
-  To develop this plugin you need proper `kibana` version as described above. This plugin should be located:
-```
-  .
-  ├── kibana
-  └── kibana-extra/keycloak-kibana
-```
-  Where kibana is folder with `kibana` and `keycloak-kibana` is folder with this repository.
-  
-- change lines in `keycloak-kibana.package.json` 
-  
-```bash
-    # From:
-    "@elastic/eslint-config-kibana": "^0.14.0",
-    "@elastic/eslint-import-resolver-kibana": "^0.9.0",
-    "@elastic/plugin-helpers": "^7.1.3",
-    # To:
-    "@elastic/eslint-config-kibana": "link:../../kibana/packages/eslint-config-kibana",
-    "@elastic/eslint-import-resolver-kibana": "link:../../kibana/packages/kbn-eslint-import-resolver-kibana",
-    "@kbn/plugin-helpers": "link:../../kibana/packages/kbn-plugin-helpers",
-```
-- To start developing execute in `keycloak-kibana`:
-
-``` bash
-  yarn kbn bootstrap
-  yarn start --dev --oss --no-base-path
-```
+- Visit `localhost:5601` and log in as `admin:admin` to try it out.

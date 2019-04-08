@@ -5,6 +5,8 @@ import HeartRegularIcon from '../../images/heart-regular.svg';
 import { EuiIcon } from '@elastic/eui';
 
 const Icon = ({ src, size, alt, onClick }) => (
+  // TODO: Check and remove eslint suppression
+  // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
   <img onClick={onClick} src={src} style={{ cursor: 'pointer', margin: '0 2px', opacity: '0.7' }} height={size} width={size} alt={alt}/>
 );
 
