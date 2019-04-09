@@ -40,7 +40,6 @@ const request = {
   }
 };
 
-
 const createCatalog = (catalogName) => {
   if (!fs.existsSync(catalogName)) {
     fs.mkdirSync(catalogName);
@@ -70,7 +69,6 @@ const extractResponse = (response) => {
   });
 };
 
-
 const fetchKibana = (kibanaUrl) => {
   return request.get(kibanaUrl).then(response => extractResponse(response));
 };
@@ -78,13 +76,6 @@ const fetchKibana = (kibanaUrl) => {
 const switchKibanaConfig = () => {
   console.log('Switching kibana config');
   fs.copyFileSync('env/kibana/kibana.yml', path.join(KIBANA_CATALOG, 'config/kibana.yml'));
-};
-
-const installKibanaPlugin = (pluginLocation) => {
-  const cmd = `node --no-warnings src/cli_plugin install ${pluginLocation}`;
-  const cwd = KIBANA_CATALOG;
-  console.log(`> ${cmd} in ${cwd}`);
-  execSync(cmd, {stdio, cwd});
 };
 
 const bootstrapKibana = () => {
@@ -111,9 +102,6 @@ if (kibanaExists()) {
     switchKibanaConfig();
     bootstrapKibana();
     deletePreCommitHook();
-    pkg.kibana.plugins.forEach(plugin => {
-      installKibanaPlugin(plugin.location);
-    });
   }).catch(error => {
     console.error(`An error occurred during fetching kibana sources. ${error}`);
     process.exit(1);
