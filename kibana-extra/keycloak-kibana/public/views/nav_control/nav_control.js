@@ -1,7 +1,7 @@
 import { constant } from 'lodash';
 import { chromeNavControlsRegistry } from 'ui/registry/chrome_nav_controls';
 import { uiModules } from 'ui/modules';
-import template from 'plugins/keycloak-kibana/views/nav_control/nav_control.html';
+import template from './nav_control.html';
 import { PRINCIPAL_UPDATE } from '../../authz/constants/EventTypes';
 
 chromeNavControlsRegistry.register(constant({

@@ -1,49 +1,23 @@
 {
   "name": "keycloak-kibana",
-  "version": "2.0.0",
+  "version": "2.0.0-alpha3",
   "description": "A Keycloak authorization plugin for Kibana",
-  "main": "index.js",
   "kibana": {
-    "version": "6.6.1",
-    "templateVersion": "7.2.4"
+    "location": "https://github.com/elastic/kibana/archive/v6.6.2.tar.gz"
   },
   "scripts": {
-    "kbn": "node ../../kibana/scripts/kbn",
-    "lint": "eslint **/*.js",
-    "start": "plugin-helpers start",
-    "test:server": "plugin-helpers test:server",
-    "test:browser": "plugin-helpers test:browser",
-    "build": "plugin-helpers build",
-    "gather-info": "node gather-info.js"
+    "install": "node scripts/install.js",
+    "build" : "node scripts/build.js",
+    "start": "node scripts/start.js --dev --oss --no-base-path",
+    "kbn": "node kibana/scripts/kbn",
+    "lint": "node scripts/lint.js",
+    "test": "node scripts/test.js"
   },
   "devDependencies": {
-    "@elastic/eslint-config-kibana": "^0.14.0",
-    "@elastic/eslint-import-resolver-kibana": "^1.0.0",
-    "@elastic/plugin-helpers": "^7.1.3",
-    "babel-core": "6.21.0",
-    "babel-eslint": "^8.0.2",
-    "babel-plugin-transform-async-to-generator": "^6.24.1",
-    "babel-preset-es2015": "6.22.0",
-    "babel-runtime": "5.8.38",
-    "eslint": "^4.11.0",
-    "eslint-plugin-babel": "^4.1.1",
-    "eslint-plugin-import": "^2.3.0",
-    "eslint-plugin-jest": "^21.3.2",
-    "eslint-plugin-mocha": "^4.9.0",
-    "eslint-plugin-prefer-object-spread": "^1.2.1",
-    "eslint-plugin-react": "^7.0.1",
-    "expect.js": "^0.3.1",
-    "jquery": "^3.3.1"
+    "tar": "^4.4.8"
   },
-  "dependencies": {
-    "angular-resource": "1.4.9",
-    "axios": "^0.18.0",
-    "boom": "^7.2.0",
-    "joi": "^14.3.1",
-    "keycloak-connect": "^4.0.0",
-    "keycloak-hapi": "^1.2.0",
-    "lodash": "^4.17.4",
-    "url-join": "^4.0.0",
-    "yar": "^9.1.0"
+  "engines": {
+    "node": "10.15.2",
+    "yarn": "^1.10.1"
   }
 }
