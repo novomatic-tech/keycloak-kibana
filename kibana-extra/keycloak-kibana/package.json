@@ -1,10 +1,10 @@
 {
   "name": "keycloak-kibana",
-  "version": "2.0.0-alpha3",
+  "version": "3.0.0-alpha2",
   "description": "A Keycloak authorization plugin for Kibana",
   "main": "index.js",
   "kibana": {
-    "version": "6.6.2",
+    "version": "7.0.0",
     "templateVersion": "7.2.4"
   },
   "scripts": {

@@ -412,6 +412,11 @@ argparse@^1.0.7:
   dependencies:
     sprintf-js "~1.0.2"
 
+argv-split@^2.0.1:
+  version "2.0.1"
+  resolved "https://nexus.s3.novomatic-tech.com/repository/npm-ums/argv-split/-/argv-split-2.0.1.tgz#be264117790dbd5ccd63ec3f449a1804814ac4c5"
+  integrity sha1-viZBF3kNvVzNY+w/RJoYBIFKxMU=
+
 aria-query@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/aria-query/-/aria-query-3.0.0.tgz#65b3fcc1ca1155a8c9ae64d6eee297f15d5133cc"
