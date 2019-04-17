@@ -33,7 +33,7 @@ export default class UserNavControl extends React.Component {
         aria-controls="headerAccountMenu"
         aria-expanded={this.state.open}
         aria-haspopup="true"
-        aria-label={<FormattedMessage id="keycloak.accountMenuAriaLabel" defaultMessage="Account menu" />}
+        aria-label={<FormattedMessage id="keycloak.userNav.accountMenuAriaLabel" defaultMessage="Account menu" />}
         onClick={this.toggleMenu}
       >
         <EuiAvatar name={name} size="s" />
@@ -68,15 +68,15 @@ export default class UserNavControl extends React.Component {
                 </EuiText>
                 <EuiSpacer size="m" />
                 <EuiLink href={user.accountUrl}>
-                  <FormattedMessage id="keycloak.editProfileLinkText" defaultMessage="Edit profile"/>
+                  <FormattedMessage id="keycloak.userNav.editProfileLinkText" defaultMessage="Edit profile"/>
                 </EuiLink>
                 <EuiSpacer size="s" />
                 <EuiLink href={user.changePasswordUrl}>
-                  <FormattedMessage id="keycloak.changePasswordLinkText" defaultMessage="Change password"/>
+                  <FormattedMessage id="keycloak.userNav.changePasswordLinkText" defaultMessage="Change password"/>
                 </EuiLink>
                 <EuiSpacer size="s" />
                 <EuiLink href={user.logoutUrl}>
-                  <FormattedMessage id="keycloak.logoutLinkText" defaultMessage="Log out"/>
+                  <FormattedMessage id="keycloak.userNav.logoutLinkText" defaultMessage="Log out"/>
                 </EuiLink>
               </EuiFlexItem>
             </EuiFlexGroup>
