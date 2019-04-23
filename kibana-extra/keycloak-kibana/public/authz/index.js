@@ -17,7 +17,7 @@ import authorizationRules from './authorizationRules';
 import { isFeatureEnabled, isKibanaApp, decorateDirective } from './utils';
 
 const kibanaApp = uiModules.get('kibana', ['ngRoute', 'react']);
-decorateDirective(kibanaApp, 'headerGlobalNavDirective', HeaderGlobalNavDecorator);
+decorateDirective(kibanaApp, 'headerGlobalNav', HeaderGlobalNavDecorator);
 
 if (isKibanaApp()) {
   const dashboardApp = uiModules.get('app/dashboard');

@@ -7,7 +7,7 @@ export default class PrincipalProvider {
     this._httpClient = $http;
     this._url = chrome.addBasePath('/api/principal');
     this._principal = null;
-    this._principal$ = new Rx.Subject();
+    this._principal$ = new Rx.ReplaySubject(1);
   }
 
   getPrincipal$() {

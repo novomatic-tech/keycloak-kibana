@@ -7,7 +7,14 @@ import { EuiIcon } from '@elastic/eui';
 const Icon = ({ src, size, alt, onClick }) => (
   // TODO: Check and remove eslint suppression
   // eslint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
-  <img onClick={onClick} src={src} style={{ cursor: 'pointer', margin: '0 2px', opacity: '0.7' }} height={size} width={size} alt={alt}/>
+  <img
+    onClick={onClick}
+    src={src}
+    style={{ cursor: 'pointer', margin: '0 2px', opacity: '0.7' }}
+    height={size}
+    width={size}
+    alt={alt}
+  />
 );
 
 export default class DashboardTags extends React.Component { // TODO: make it pretty!
@@ -24,10 +31,11 @@ export default class DashboardTags extends React.Component { // TODO: make it pr
     const icons = [];
 
     const homeIcon = (
-      <EuiIcon type="pin"/>
+      <EuiIcon key="home" type="pin"/>
     );
     const favouriteIcon = (
       <Icon
+        key="favourite"
         onClick={() => this.props.toggleDashboardTag(dashboard.id, 'favourite', !isFavourite)}
         src={isFavourite ? HeartSolidIcon : HeartRegularIcon}
         size={16}
