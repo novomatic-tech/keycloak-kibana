@@ -21,7 +21,8 @@ Artifacts will be produced in the `kibana-extra/keycloak-kibana/build` directory
 ## Installing the plugin
 
 Before you install the plugin, you must have Kibana installed in the `$KIBANA_HOME` directory.
-You can download it [here](https://www.elastic.co/downloads/kibana).
+You can download it [here](https://www.elastic.co/downloads/kibana). Also make sure that you have configured 
+plugin in the ``kibana.yml`` file before installation (there are several mandatory parameters).
 
 ```bash
 # Remove the previously installed plugin (optional)
