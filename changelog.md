@@ -1,4 +1,6 @@
-## Upcoming 3.0.0-alpha2
+## Upcoming 3.0.0-alpha3
+
+## 3.0.0-alpha2
 
 * Add compatibility with Kibana 7.0.0
 * Add support for i18n feature
