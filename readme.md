@@ -42,6 +42,7 @@ Kibana version | Plugin version
 `6.6.1` | `2.0.0_6.6.1`
 `6.6.2` | `2.0.0_6.6.2`
 `7.0.0` | `3.0.0_7.0.0`
+`7.0.1` | `3.0.0_7.0.1`
 
 The second version in the plugin (after `'_'`) must correspond to your Kibana version or the plugin will fail.
 If the required version is not available to download, you must build it yourself. Please read further for additional details on this topic.

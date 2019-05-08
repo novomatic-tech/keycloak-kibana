@@ -1,4 +1,5 @@
-## Upcoming 3.0.0-alpha3
+## 3.0.0-alpha3
+* Add compatibility with Kibana 7.0.1
 
 ## 3.0.0-alpha2
 
