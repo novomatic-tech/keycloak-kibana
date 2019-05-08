@@ -1,6 +1,6 @@
 {
   "name": "keycloak-kibana",
-  "version": "3.0.0-alpha3",
+  "version": "3.0.0-alpha4",
   "description": "A Keycloak authorization plugin for Kibana",
   "kibana": {
     "location": "https://github.com/elastic/kibana/archive/v7.0.1.tar.gz"
