@@ -1,5 +1,4 @@
 import React from 'react';
-import { FormattedMessage } from '@kbn/i18n/react';
 
 const permissions = {
   VIEW: 'view',
@@ -9,17 +8,17 @@ const permissions = {
 
 permissions.listAvailable = () => [
   {
-    label: <FormattedMessage id="keycloak.permissions.canView" defaultMessage="Can view"/>,
+    label: "Can view",
     value: permissions.VIEW,
     icon: 'eye'
   },
   {
-    label: <FormattedMessage id="keycloak.permissions.canEdit" defaultMessage="Can edit"/>,
+    label: "Can edit",
     value: permissions.EDIT,
     icon: 'pencil'
   },
   {
-    label: <FormattedMessage id="keycloak.permissions.canManage" defaultMessage="Can manage"/>,
+    label: "Can manage",
     value: permissions.MANAGE,
     icon: 'wrench'
   }
