@@ -1,5 +1,3 @@
-import React from 'react';
-
 const permissions = {
   VIEW: 'view',
   EDIT: 'edit',
@@ -8,17 +6,17 @@ const permissions = {
 
 permissions.listAvailable = () => [
   {
-    label: "Can view",
+    label: 'Can view',
     value: permissions.VIEW,
     icon: 'eye'
   },
   {
-    label: "Can edit",
+    label: 'Can edit',
     value: permissions.EDIT,
     icon: 'pencil'
   },
   {
-    label: "Can manage",
+    label: 'Can manage',
     value: permissions.MANAGE,
     icon: 'wrench'
   }
