@@ -1,4 +1,5 @@
-## Upcoming 3.0.0-alpha5
+## 3.0.0-alpha5
+* Add compatibility with Kibana 7.1.1
 
 ## 3.0.0-alpha4
 * Fix problem with importing i18n library
