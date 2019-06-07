@@ -1,3 +1,5 @@
+## Upcoming 3.0.0-alpha6
+
 ## 3.0.0-alpha5
 * Add compatibility with Kibana 7.1.1
 
