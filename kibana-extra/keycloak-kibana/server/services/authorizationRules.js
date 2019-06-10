@@ -77,7 +77,8 @@ class DeleteRule {
         throw Boom.forbidden(`The user has no permissions to delete this resource.`);
       }
 
-      clientParams.version = document._version;
+      clientParams.if_seq_no = document._seq_no;
+      clientParams.if_primary_term = document._primary_term;
     }
     return await cluster.processAction(action);
   }
@@ -110,7 +111,8 @@ class UpdateRule {
         throw Boom.forbidden(`The user has no permissions to update this resource.`);
       }
       clientParams.body.acl = document.found ? document._source.acl : principal.createNewAcl();
-      clientParams.version = document._version;
+      clientParams.if_seq_no = document._seq_no;
+      clientParams.if_primary_term = document._primary_term;
     }
     return await cluster.processAction(action);
   }
