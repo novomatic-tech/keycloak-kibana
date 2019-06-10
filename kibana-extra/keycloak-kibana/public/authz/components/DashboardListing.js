@@ -523,7 +523,7 @@ class DashboardListingUi extends React.Component {
     };
 
     const deleteItem = (record) => {
-      this.setState({ selectedItem: record });
+      this.setState({ selectedIds: record.id });
       this.openDeleteModal();
     };
 
