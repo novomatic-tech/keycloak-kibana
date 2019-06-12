@@ -43,6 +43,8 @@ Kibana version | Plugin version
 `6.6.1` | `2.0.0_6.6.1`
 `6.6.2` | `2.0.0_6.6.2`
 `7.0.0` | `3.0.0_7.0.0`
+`7.0.1` | `3.0.0_7.0.1`
+`7.1.1` | `3.0.0_7.1.1`
 
 The second version in the plugin (after `'_'`) must correspond to your Kibana version or the plugin will fail.
 If the required version is not available to download, you must build it yourself. Please read further for additional details on this topic.
@@ -104,3 +106,15 @@ Sample configuration section can be found in the `env/kibana/kibana.yml` file.
   ```
 
 - Visit `localhost:5601` and log in as `admin:admin` to try it out.
+
+## Extracting translations keys
+
+The `keycloak-kibana` plugin support i18n feature.
+According to the [documentation](https://github.com/elastic/kibana/blob/7.0/src/dev/i18n/README.md), 
+kibana has tool for extracting all translation keys from source code. Example:
+
+  ```bash
+  $ mkdir translations
+  $ cd kibana
+  $ node scripts/i18n_extract.js --path ../kibana-extra/keycloak-kibana --output-dir ../translations --include-config ../kibana-extra/keycloak-kibana/.i18nrc.json
+  ```

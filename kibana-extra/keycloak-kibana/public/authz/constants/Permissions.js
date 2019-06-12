@@ -5,9 +5,21 @@ const permissions = {
 };
 
 permissions.listAvailable = () => [
-  { label: 'Can view', value: permissions.VIEW, icon: 'eye' },
-  { label: 'Can edit', value: permissions.EDIT, icon: 'pencil' },
-  { label: 'Can manage', value: permissions.MANAGE, icon: 'wrench' }
+  {
+    label: 'Can view',
+    value: permissions.VIEW,
+    icon: 'eye'
+  },
+  {
+    label: 'Can edit',
+    value: permissions.EDIT,
+    icon: 'pencil'
+  },
+  {
+    label: 'Can manage',
+    value: permissions.MANAGE,
+    icon: 'wrench'
+  }
 ];
 
 permissions.getMappings = () => {

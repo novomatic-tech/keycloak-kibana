@@ -1,7 +1,7 @@
 version: '2.1'
 services:
   keycloak:
-    image: jboss/keycloak:4.5.0.Final
+    image: jboss/keycloak:5.0.0
     environment:
       - KEYCLOAK_USER=admin
       - KEYCLOAK_PASSWORD=admin
@@ -17,11 +17,10 @@ services:
       - ./env/keycloak/kibana-realm.json:/opt/jboss/keycloak/kibana-realm.json
 
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:6.6.2
-    expose:
-      - 9200
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.1.1
     environment:
-      ES_JAVA_OPTS: -Xms512m -Xmx512m
+      ES_JAVA_OPTS: -Xms1g -Xmx1g
+      discovery.type: single-node
     ports:
       - "9200:9200"
 
