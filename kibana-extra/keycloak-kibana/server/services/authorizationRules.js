@@ -213,6 +213,16 @@ class BulkGetRule {
   }
 }
 
+class VisDataRule {
+  matches(action) {
+    return action.isVisData();
+  }
+
+  process(cluster, action) {
+    return cluster.processAction(action);
+  }
+}
+
 export const getAuthorizationRules = (aclEnabled) => [
   new GetRule({ resourceType: 'dashboard' }),
   new CreateRule({ resourceType: 'dashboard', aclEnabled }),
@@ -226,9 +236,11 @@ export const getAuthorizationRules = (aclEnabled) => [
   new CreateRule({ resourceType: 'search' }),
   new UpdateRule({ resourceType: 'search' }),
   new DeleteRule({ resourceType: 'search' }),
+  new GetRule({ resourceType: 'telemetry' }),
   new GetRule({ resourceType: 'config' }),
   new FindRule({ aclEnabled }),
   new BulkGetRule({ aclEnabled }),
+  new VisDataRule(),
   new AnyActionRule({ allowedWhen: (action) => action.principal.canDoAnything() })
 ];
 

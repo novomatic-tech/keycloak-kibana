@@ -30,6 +30,11 @@ export default class SavedObjectAction {
             this.request.method === 'delete';
     };
 
+    isVisData = () => {
+      return this.request.path === '/api/metrics/vis/data' &&
+          this.request.method === 'post';
+    };
+
     isRetrievalOf = (resourceType) => {
       const { endpoint, clientParams } = this.clusterRequest;
       return endpoint === 'get' && clientParams.id.startsWith(resourceType);
