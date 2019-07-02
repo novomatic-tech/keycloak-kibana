@@ -1,43 +1,38 @@
 import _ from 'lodash';
 import AuthorizationError from './AuthorizationError';
-
-export const unauthorizedPath = '/unauthorized';
+import { fatalError } from 'ui/notify';
 
 export default class RouteAuthorization {
 
-  constructor($rootScope, $location, authorizationRules) {
+  constructor($rootScope, $location, authorizationRules, principalProvider) {
     this.$rootScope = $rootScope;
     this.$location = $location;
     this.authorizationRules = authorizationRules;
+    this.principalProvider = principalProvider;
   }
 
   initialize() {
-    const auth = this;
-    auth.$rootScope.$on('$routeChangeStart', (event, nextLocation) => {
-      if (nextLocation.originalPath && nextLocation.originalPath.startsWith(unauthorizedPath)) {
-        return;
-      }
-      _.set(nextLocation, 'resolve.auth', function (principalProvider) {
-        return principalProvider.getPrincipalAsync().then((principal) => {
-          auth.requestAccess(principal, nextLocation);
-        });
+    this.principalProvider.getPrincipalAsync()
+      .then(principal => this.requestAccess(principal, new URL(window.location)))
+      .catch(error => fatalError(error));
+
+    this.$rootScope.$on('$routeChangeStart', (event, nextLocation) => {
+      _.set(nextLocation, 'resolve.auth', () => {
+        return this.principalProvider.getPrincipalAsync()
+          .then(principal => this.requestAccess(principal, new URL(window.location)));
       });
-    });
-    auth.$rootScope.$on('$routeChangeError', (event, nextLocation, previousLocation, error) => {
-      if (error instanceof AuthorizationError) {
-        auth.$location.path(unauthorizedPath);
-      }
     });
   }
 
-  requestAccess(principal, nextLocation) {
-    const rule = _.find(this.authorizationRules.routes, rule => rule.resource(nextLocation, principal));
+  requestAccess(principal, url) {
+    const rule = _.find(this.authorizationRules.routes, rule => rule.resource(url, principal));
     if (!rule && this.authorizationRules.allowMissingRoutes) {
       return;
     }
-    if (rule && rule.principal(principal, nextLocation)) {
+    if (rule && rule.principal(principal, url)) {
       return;
     }
-    throw new AuthorizationError(`Route ${nextLocation.originalPath} is not authorized`);
+    throw new AuthorizationError(`Url ${url} is not authorized.`);
   }
+
 }

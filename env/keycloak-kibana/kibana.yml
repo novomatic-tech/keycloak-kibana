@@ -1,0 +1,27 @@
+keycloak.serverUrl: http://localhost:8080/auth
+keycloak.realm: kibana
+keycloak.clientId: kibana
+keycloak.clientSecret: y8gSCns8hPTkQr6Zqwu2hPw6ScQDZNZz
+keycloak.session.cookieOptions.password: JWFn3Er]PqNZ7n{H$L9aa}Eeg#J`9?zb-/jyt?;#px>?@xaYrx_"P>Y%k[~7VGWV
+#keycloak.acl.enabled: true
+#keycloak.tagging.enabled: true
+
+xpack.security.enabled: false
+
+## change locale
+#i18n.locale: zh-CN
+
+## disable apps
+#xpack.infra.enabled: false
+#xpack.apm.enabled: false
+#xpack.graph.enabled: false
+#xpack.uptime.enabled: false
+#xpack.beats.enabled: false
+
+## disable telemetry
+#xpack.xpack_main.telemetry.enabled: false
+#xpack.oss_telemetry.enabled: false
+#xpack.maps.enabled: false
+
+## disable task manager
+#xpack.task_manager.enabled: false
