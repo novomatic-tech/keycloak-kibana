@@ -4,7 +4,7 @@ const fs = require('fs');
 const https = require('https');
 const url = require('url');
 const path = require('path');
-const {execSync} = require('child_process');
+const { execSync } = require('child_process');
 const pkg = require('../package.json');
 const KIBANA_CATALOG = 'kibana';
 const stdio = [0, 1, 2];
@@ -75,22 +75,22 @@ const fetchKibana = (kibanaUrl) => {
 
 const switchKibanaConfig = () => {
   console.log('Switching kibana config');
-  fs.copyFileSync('env/kibana/kibana.yml', path.join(KIBANA_CATALOG, 'config/kibana.yml'));
+  fs.copyFileSync('env/keycloak-kibana/kibana.yml', path.join(KIBANA_CATALOG, 'config/kibana.yml'));
 };
 
 const bootstrapKibana = () => {
   const cmd = `yarn kbn bootstrap`;
   const cwd = KIBANA_CATALOG;
   console.log(`> ${cmd} in ${cwd}`);
-  execSync(cmd, {stdio, cwd});
+  execSync(cmd, { stdio, cwd });
 };
 
 const deletePreCommitHook = () => {
-    const hookPath = './.git/hooks/pre-commit';
-    if (fs.existsSync(hookPath)) {
-        console.log(`Removing pre-commit hook from git: ${hookPath}`);
-        fs.unlinkSync(hookPath);
-    }
+  const hookPath = './.git/hooks/pre-commit';
+  if (fs.existsSync(hookPath)) {
+    console.log(`Removing pre-commit hook from git: ${hookPath}`);
+    fs.unlinkSync(hookPath);
+  }
 };
 
 if (kibanaExists()) {

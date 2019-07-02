@@ -90,6 +90,28 @@ Parameter | Description | Default
 
 Sample configuration section can be found in the `env/kibana/kibana.yml` file.
 
+## Roles
+
+Role | Description
+--- | ---
+`discover` | Can discover logs.
+`view-visualizations` | Can view visualisations.
+`manage-visualizations` | Can create and edit visualisations.
+`view-dashboards` | Can view dashboards.
+`manage-dashboards` | Can create and edit dashboards.
+`view-searches` | Can view searches.
+`manage-searches` | Can create and edit searches.
+`use-dev-tools` | Can use dev tools.
+`manage-kibana` | Can manage kibana.
+`use-canvas` | Can use canvas.
+`use-maps` | Can use maps.
+`use-ml` | Can use machine learning.
+`use-infra` | Can use infrastructure.
+`use-infra-logs` | Can use infrastructure logs.
+`use-apm` | Can use application performance monitoring.
+`use-uptime` | Can use uptime. 
+`use-monitoring` | Can use monitoring.
+
 ## Running the example
 
 - Run a preconfigured Keycloak instance using docker compose

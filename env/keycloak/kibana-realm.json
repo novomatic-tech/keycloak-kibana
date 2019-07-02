@@ -14,8 +14,16 @@
         { "name": "manage-dashboards" },
         { "name": "view-searches" },
         { "name": "manage-searches" },
-        { "name": "use-timelion" },
-        { "name": "use-dev-tools" }
+        { "name": "use-dev-tools" },
+        { "name": "manage-kibana" },
+        { "name": "use-canvas" },
+        { "name": "use-maps" },
+        { "name": "use-ml" },
+        { "name": "use-infra" },
+        { "name": "use-infra-logs" },
+        { "name": "use-apm" },
+        { "name": "use-uptime" },
+        { "name": "use-monitoring" }
       ]
     }
   },
@@ -130,9 +138,16 @@
           "manage-visualizations",
           "view-searches",
           "manage-searches",
-          "use-timelion",
           "use-dev-tools",
-          "manage-kibana"
+          "manage-kibana",
+          "use-canvas",
+          "use-maps",
+          "use-ml",
+          "use-infra",
+          "use-infra-logs",
+          "use-apm",
+          "use-uptime",
+          "use-monitoring"
         ]
       }
     },

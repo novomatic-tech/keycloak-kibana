@@ -34,8 +34,8 @@ export default class PrincipalProvider {
       }
       this._principal$.next(provider._principal);
       return response.data;
-    }).catch(e => {
-      throw new AuthorizationError(e.message); // TODO check whether this is 401
+    }).catch(error => {
+      throw new AuthorizationError(`Cannot fetch user details. Status code: ${error.status}`, error);
     });
   }
 }

@@ -12,7 +12,7 @@
     "kbn": "node ../../kibana/scripts/kbn",
     "es": "node ../../kibana/scripts/es",
     "lint": "eslint .",
-    "start": "plugin-helpers start",
+    "start": "plugin-helpers start --no-base-path --dev",
     "test:server": "plugin-helpers test:server",
     "test:browser": "plugin-helpers test:browser",
     "build": "plugin-helpers build"
