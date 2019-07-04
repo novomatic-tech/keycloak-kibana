@@ -2,6 +2,7 @@
  * The dashboard listening component enriched with dashboard ownership feature.
  * Original source: https://github.com/elastic/kibana/blob/7.0/src/legacy/core_plugins/kibana/public/dashboard/listing/dashboard_listing.js
  */
+/* eslint-disable import/no-unresolved */
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, injectI18n } from '@kbn/i18n/react';

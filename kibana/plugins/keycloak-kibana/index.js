@@ -23,9 +23,9 @@ const setupRequiredScope = (requiredRoles) => {
       continue;
     }
     const prefix = value[0];
-    // TODO: Write tests, refactor code and remove eslint suppression
-    // eslint-disable-next-line no-nested-ternary
-    const type = (prefix === '+' ? 'required' : (prefix === '!' ? 'forbidden' : 'selection'));
+    // TODO: Write tests, refactor code
+    let type = prefix === '!' ? 'forbidden' : 'selection';
+    type = prefix === '+' ? 'required' : type;
     const clean = (type === 'selection' ? value : value.slice(1));
     scope[type] = scope[type] || [];
     scope[type].push(clean);
@@ -38,11 +38,9 @@ const validateScope = (credentials, scope, type) => {
     return true;
   }
 
-  // TODO: Write tests, refactor code and remove eslint suppression
-  // eslint-disable-next-line no-nested-ternary
-  const count = typeof credentials.scope === 'string' ?
-    (scope[type].indexOf(credentials.scope) !== -1 ? 1 : 0) :
-    _.intersection(scope[type], credentials.scope).length;
+  // TODO: Write tests, refactor code
+  let count = scope[type].indexOf(credentials.scope) !== -1 ? 1 : 0;
+  count = typeof credentials.scope === 'string' ? count : _.intersection(scope[type], credentials.scope).length;
   if (type === 'forbidden') {
     return count === 0;
   }

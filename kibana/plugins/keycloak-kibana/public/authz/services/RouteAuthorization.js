@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 import _ from 'lodash';
 import AuthorizationError from './AuthorizationError';
 import { fatalError } from 'ui/notify';

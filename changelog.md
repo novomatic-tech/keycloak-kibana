@@ -1,9 +1,9 @@
 ## Upcoming 3.0.0-alpha7
-* Add support for Kibana X-Pack
+* Add support for Kibana X-Pack - #24
 * Add compatibility with Kibana 7.2.0
 
 ## 3.0.0-alpha6
-* Fix problem with save again already saved dashboard [issue #19](https://github.com/novomatic-tech/keycloak-kibana/issues/19)
+* Fix problem with save again already saved dashboard - #19
 * Fix problem with deleting of dashboard
 
 ## 3.0.0-alpha5

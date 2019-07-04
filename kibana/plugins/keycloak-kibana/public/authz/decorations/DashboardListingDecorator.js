@@ -1,4 +1,5 @@
-import OverriddenReactDirective from './OverriddenReactDirective';
+/* eslint-disable import/no-unresolved */
+import overriddenReactDirective from './OverriddenReactDirective';
 import { DashboardListing } from '../components/DashboardListing';
 import { wrapInI18nContext } from 'ui/i18n';
 import Roles from '../constants/Roles';
@@ -11,8 +12,7 @@ import { isFeatureEnabled } from '../utils';
  * @see https://github.com/elastic/kibana/blob/v6.4.2/src/core_plugins/kibana/public/dashboard/listing/dashboard_listing.js#L52
  * @see https://github.com/elastic/kibana/blob/v6.4.2/src/core_plugins/kibana/public/dashboard/index.js#L44
  */
-// eslint-disable-next-line new-cap
-export default OverriddenReactDirective(wrapInI18nContext(DashboardListing),
+export default overriddenReactDirective(wrapInI18nContext(DashboardListing),
   (principalProvider, userProvider, dashboardPermissions, tagService) => {
     return {
       hideWriteControls: !principalProvider.getPrincipal().scope.includes(Roles.MANAGE_DASHBOARDS),
