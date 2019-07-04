@@ -1,9 +1,7 @@
 ---
-extends: "@elastic/eslint-config-kibana"
+extends: "@elastic/kibana"
 
 settings:
   import/resolver:
     '@elastic/eslint-import-resolver-kibana':
       rootPackageName: 'keycloak-kibana'
-  react:
-    version: '16.3'

@@ -7,6 +7,7 @@ export default class PrincipalProvider {
     this._httpClient = $http;
     this._url = chrome.addBasePath('/api/principal');
     this._principal = null;
+    this._principalPromise = null;
     this._principal$ = new Rx.ReplaySubject(1);
   }
 
@@ -19,15 +20,15 @@ export default class PrincipalProvider {
   }
 
   getPrincipalAsync() {
-    if (this._principal) {
-      return Promise.resolve(this._principal);
+    if (this._principalPromise) {
+      return this._principalPromise;
     }
     return this._updatePrincipal();
   }
 
   _updatePrincipal() {
     const provider = this;
-    return this._httpClient.get(this._url).then(response => {
+    this._principalPromise = this._httpClient.get(this._url).then(response => {
       provider._principal = response.data;
       if (window.onKibanaPrincipalUpdated) {
         window.onKibanaPrincipalUpdated(response.data);
@@ -37,5 +38,6 @@ export default class PrincipalProvider {
     }).catch(error => {
       throw new AuthorizationError(`Cannot fetch user details. Status code: ${error.status}`, error);
     });
+    return this._principalPromise;
   }
 }

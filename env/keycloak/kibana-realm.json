@@ -138,8 +138,6 @@
           "manage-visualizations",
           "view-searches",
           "manage-searches",
-          "use-dev-tools",
-          "manage-kibana",
           "use-canvas",
           "use-maps",
           "use-ml",
@@ -147,7 +145,10 @@
           "use-infra-logs",
           "use-apm",
           "use-uptime",
-          "use-monitoring"
+          "use-siem",
+          "use-dev-tools",
+          "use-monitoring",
+          "manage-kibana"
         ]
       }
     },

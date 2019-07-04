@@ -101,16 +101,17 @@ Role | Description
 `manage-dashboards` | Can create and edit dashboards.
 `view-searches` | Can view searches.
 `manage-searches` | Can create and edit searches.
-`use-dev-tools` | Can use dev tools.
-`manage-kibana` | Can manage kibana.
 `use-canvas` | Can use canvas.
 `use-maps` | Can use maps.
 `use-ml` | Can use machine learning.
 `use-infra` | Can use infrastructure.
 `use-infra-logs` | Can use infrastructure logs.
 `use-apm` | Can use application performance monitoring.
-`use-uptime` | Can use uptime. 
+`use-uptime` | Can use uptime.
+`use-siem` | Can use security analytics.
+`use-dev-tools` | Can use dev tools.
 `use-monitoring` | Can use monitoring.
+`manage-kibana` | Can manage kibana.
 
 ## Running the example
 

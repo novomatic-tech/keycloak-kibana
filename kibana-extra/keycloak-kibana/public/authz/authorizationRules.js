@@ -27,6 +27,7 @@ const authorizationRules = {
     { resource: hasId('infra:logs'), principal: hasRole(Roles.USE_INFRA_LOGS) },
     { resource: hasId('apm'), principal: hasRole(Roles.USE_APM) },
     { resource: hasId('uptime'), principal: hasRole(Roles.USE_UPTIME) },
+    { resource: hasId('siem'), principal: hasRole(Roles.USE_SIEM) },
     { resource: hasId('kibana:dev_tools'), principal: hasRole(Roles.USE_DEV_TOOLS) },
     { resource: hasId('monitoring'), principal: hasRole(Roles.USE_MONITORING) },
     { resource: hasId('kibana:management'), principal: hasRole(Roles.MANAGE_KIBANA) }
@@ -47,6 +48,7 @@ const authorizationRules = {
     { resource: whether(pathEndsWith('/app/infra'), hashStartsWith('#/logs')), principal: hasRole(Roles.USE_INFRA_LOGS) },
     { resource: whether(pathEndsWith('/app/apm')), principal: hasRole(Roles.USE_APM) },
     { resource: whether(pathEndsWith('/app/uptime')), principal: hasRole(Roles.USE_UPTIME) },
+    { resource: whether(pathEndsWith('/app/siem')), principal: hasRole(Roles.USE_SIEM) },
     { resource: whether(isKibanaApp, hashStartsWith('#/dev_tools')), principal: hasRole(Roles.USE_DEV_TOOLS) },
     { resource: whether(pathEndsWith('/app/monitoring')), principal: hasRole(Roles.USE_MONITORING) },
     { resource: whether(isKibanaApp, hashStartsWith('#/management')), principal: hasRole(Roles.MANAGE_KIBANA) }
