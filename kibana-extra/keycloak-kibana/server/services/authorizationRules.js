@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import Boom from 'boom';
 import Permissions from '../../public/authz/constants/Permissions';
+import Roles from '../../public/authz/constants/Roles';
 
 const includePermissionsInSavedObjects = (principal, docs) => {
   docs.filter(doc => doc._source.type).forEach(doc => {
@@ -213,9 +214,45 @@ class BulkGetRule {
   }
 }
 
-class VisDataRule {
+class MetricsRequestRule {
   matches(action) {
-    return action.isVisData();
+    return action.isMetricsRequest();
+  }
+
+  process(cluster, action) {
+    return cluster.processAction(action);
+  }
+}
+
+class CanvasRequestRule {
+  matches(action) {
+    return action.isCanvasRequest();
+  }
+
+  process(cluster, action) {
+    if(action.principal.hasRole(Roles.USE_CANVAS)) {
+      return cluster.processAction(action);
+    }
+    throw Boom.forbidden('The user is not authorized to fetch canvas resources');
+  }
+}
+
+class InfraRequestRule {
+  matches(action) {
+    return action.isInfraRequest();
+  }
+
+  process(cluster, action) {
+    if(action.principal.hasRole(Roles.USE_INFRA) || action.principal.hasRole(Roles.USE_INFRA_LOGS)) {
+      return cluster.processAction(action);
+    }
+    throw Boom.forbidden('The user is not authorized to fetch infra resources');
+  }
+}
+
+class TelemetryRequestRule {
+  matches(action) {
+    return action.isTelemetryRequest();
   }
 
   process(cluster, action) {
@@ -240,7 +277,10 @@ export const getAuthorizationRules = (aclEnabled) => [
   new GetRule({ resourceType: 'config' }),
   new FindRule({ aclEnabled }),
   new BulkGetRule({ aclEnabled }),
-  new VisDataRule(),
+  new MetricsRequestRule(),
+  new CanvasRequestRule(),
+  new InfraRequestRule(),
+  new TelemetryRequestRule(),
   new AnyActionRule({ allowedWhen: (action) => action.principal.canDoAnything() })
 ];
 

@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
-const {execSync} = require('child_process');
+const { execSync } = require('child_process');
 
 const KIBANA_EXTRA_CATALOG = 'kibana-extra';
 
-let args = process.argv.slice(2);
+const args = process.argv.slice(2);
 
 fs.readdirSync(KIBANA_EXTRA_CATALOG).forEach(pluginName => {
   const cmd = `yarn lint ${args.join(' ')}`;
