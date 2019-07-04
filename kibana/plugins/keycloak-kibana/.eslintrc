@@ -5,3 +5,7 @@ settings:
   import/resolver:
     '@elastic/eslint-import-resolver-kibana':
       rootPackageName: 'keycloak-kibana'
+
+rules:
+  '@kbn/eslint/require-license-header': 'off'
+  '@kbn/eslint/no-restricted-paths': 'off'

@@ -3,25 +3,26 @@
   "version": "3.0.0-alpha7",
   "description": "A Keycloak authorization plugin for Kibana",
   "main": "index.js",
+  "license": "Apache-2.0",
   "kibana": {
     "version": "7.2.0",
     "templateVersion": "1.0.0"
   },
   "scripts": {
-    "preinstall": "node ../../kibana/preinstall_check",
-    "kbn": "node ../../kibana/scripts/kbn",
-    "es": "node ../../kibana/scripts/es",
+    "preinstall": "node ../../preinstall_check",
+    "kbn": "node ../../scripts/kbn",
+    "es": "node ../../scripts/es",
     "lint": "eslint .",
-    "start": "plugin-helpers start --no-base-path --dev",
+    "start": "plugin-helpers start",
     "test:server": "plugin-helpers test:server",
     "test:browser": "plugin-helpers test:browser",
     "build": "plugin-helpers build"
   },
   "devDependencies": {
-    "@elastic/eslint-config-kibana": "link:../../kibana/packages/eslint-config-kibana",
-    "@elastic/eslint-import-resolver-kibana": "link:../../kibana/packages/kbn-eslint-import-resolver-kibana",
-    "@kbn/expect": "link:../../kibana/packages/kbn-expect",
-    "@kbn/plugin-helpers": "link:../../kibana/packages/kbn-plugin-helpers",
+    "@elastic/eslint-config-kibana": "link:../../packages/eslint-config-kibana",
+    "@elastic/eslint-import-resolver-kibana": "link:../../packages/kbn-eslint-import-resolver-kibana",
+    "@kbn/expect": "link:../../packages/kbn-expect",
+    "@kbn/plugin-helpers": "link:../../packages/kbn-plugin-helpers",
     "babel-eslint": "^10.0.1",
     "eslint": "^5.16.0",
     "eslint-plugin-babel": "^5.3.0",
@@ -34,8 +35,8 @@
     "eslint-plugin-react": "^7.12.4"
   },
   "dependencies": {
-    "@kbn/i18n": "link:../../kibana/packages/kbn-i18n",
-    "rxjs": "link:../../kibana/node_modules/rxjs",
+    "@kbn/i18n": "link:../../packages/kbn-i18n",
+    "rxjs": "link:../../node_modules/rxjs",
     "axios": "^0.18.0",
     "keycloak-connect": "^4.0.0",
     "keycloak-hapi": "^1.2.0",

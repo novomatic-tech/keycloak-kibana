@@ -11,7 +11,7 @@
  * @see https://github.com/elastic/kibana/blob/v6.4.2/src/core_plugins/kibana/public/dashboard/index.js#L44
  * @see https://github.com/ngReact/ngReact#the-reactdirective-service
  */
-const OverriddenReactDirective = (reactComponent, propsFactory, watchedProperties = undefined, config = {}) => {
+const overriddenReactDirective = (reactComponent, propsFactory, watchedProperties = undefined, config = {}) => {
   return function ($delegate, reactDirective, $injector) {
     const props = propsFactory
       ? $injector.invoke(propsFactory)
@@ -24,4 +24,4 @@ const OverriddenReactDirective = (reactComponent, propsFactory, watchedPropertie
     });
   };
 };
-export default OverriddenReactDirective;
+export default overriddenReactDirective;

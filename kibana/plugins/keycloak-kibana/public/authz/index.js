@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 import { uiModules } from 'ui/modules';
 import uiRoutes from 'ui/routes';
 

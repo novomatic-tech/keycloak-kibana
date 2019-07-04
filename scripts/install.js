@@ -56,7 +56,8 @@ const extractResponse = (response) => {
     const responseStream = response.pipe(
       tar.extract({
         strip: 1,
-        cwd: KIBANA_CATALOG
+        cwd: KIBANA_CATALOG,
+        keep: true
       })
     );
     responseStream.on('end', () => {

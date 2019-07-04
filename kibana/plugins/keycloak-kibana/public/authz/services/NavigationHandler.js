@@ -1,3 +1,4 @@
+/* eslint-disable import/no-unresolved */
 import { map } from 'rxjs/operators';
 import { getNewPlatform } from 'ui/new_platform';
 import * as Rx from 'rxjs';
@@ -8,7 +9,8 @@ export default class NavigationHandler {
   constructor(chrome, principalProvider, authorizationRules) {
     this._authRules = authorizationRules;
     this._principalProvider = principalProvider;
-    this._navLinksObservable = Rx.combineLatest(this._principalProvider.getPrincipal$(), getNewPlatform().start.core.chrome.navLinks.getNavLinks$())
+    this._navLinksObservable = Rx
+      .combineLatest(this._principalProvider.getPrincipal$(), getNewPlatform().start.core.chrome.navLinks.getNavLinks$())
       .pipe(map(this._filterNavLinks));
   }
 

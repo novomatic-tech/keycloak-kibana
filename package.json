@@ -7,8 +7,9 @@
   },
   "scripts": {
     "install": "node scripts/install.js",
+    "prune-kibana": "node scripts/prune.js",
     "build": "node scripts/build.js",
-    "start": "node scripts/start.js --dev --oss --no-base-path",
+    "start": "node scripts/start.js --dev --no-base-path",
     "kbn": "node kibana/scripts/kbn",
     "lint": "node scripts/lint.js",
     "test": "node scripts/test.js"

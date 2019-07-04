@@ -97,23 +97,23 @@
     lodash "^4.17.11"
     to-fast-properties "^2.0.0"
 
-"@elastic/eslint-config-kibana@link:../../kibana/packages/eslint-config-kibana":
+"@elastic/eslint-config-kibana@link:../../packages/eslint-config-kibana":
   version "0.0.0"
   uid ""
 
-"@elastic/eslint-import-resolver-kibana@link:../../kibana/packages/kbn-eslint-import-resolver-kibana":
+"@elastic/eslint-import-resolver-kibana@link:../../packages/kbn-eslint-import-resolver-kibana":
   version "0.0.0"
   uid ""
 
-"@kbn/expect@link:../../kibana/packages/kbn-expect":
+"@kbn/expect@link:../../packages/kbn-expect":
   version "0.0.0"
   uid ""
 
-"@kbn/i18n@link:../../kibana/packages/kbn-i18n":
+"@kbn/i18n@link:../../packages/kbn-i18n":
   version "0.0.0"
   uid ""
 
-"@kbn/plugin-helpers@link:../../kibana/packages/kbn-plugin-helpers":
+"@kbn/plugin-helpers@link:../../packages/kbn-plugin-helpers":
   version "0.0.0"
   uid ""
 
@@ -4293,7 +4293,7 @@ rxjs@^6.4.0:
   dependencies:
     tslib "^1.9.0"
 
-"rxjs@link:../../kibana/node_modules/rxjs":
+"rxjs@link:../../node_modules/rxjs":
   version "0.0.0"
   uid ""
 

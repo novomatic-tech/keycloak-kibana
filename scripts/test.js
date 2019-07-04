@@ -1,8 +1,8 @@
 const fs = require('fs');
 const path = require('path');
-const {execSync} = require('child_process');
+const { execSync } = require('child_process');
 
-const KIBANA_EXTRA_CATALOG = 'kibana-extra';
+const KIBANA_PLUGINS_CATALOG = 'kibana/plugins';
 
 const runTest = (testType, path) => {
   const cmd = `yarn test:${testType}`;
@@ -13,8 +13,10 @@ const runTest = (testType, path) => {
   });
 };
 
-fs.readdirSync(KIBANA_EXTRA_CATALOG).forEach(pluginName => {
-  const pluginPath = path.join(KIBANA_EXTRA_CATALOG, pluginName);
-  runTest('server', pluginPath);
-  runTest('browser', pluginPath);
-});
+fs.readdirSync(KIBANA_PLUGINS_CATALOG, { withFileTypes: true })
+  .filter(dirent => dirent.isDirectory())
+  .forEach(dirent => {
+    const pluginPath = path.join(KIBANA_PLUGINS_CATALOG, dirent.name);
+    runTest('server', pluginPath);
+    runTest('browser', pluginPath);
+  });
