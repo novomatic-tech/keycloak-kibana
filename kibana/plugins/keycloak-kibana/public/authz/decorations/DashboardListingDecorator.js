@@ -15,15 +15,17 @@ import { isFeatureEnabled } from '../utils';
 export default overriddenReactDirective(wrapInI18nContext(DashboardListing),
   (principalProvider, userProvider, dashboardPermissions, tagService) => {
     return {
-      hideWriteControls: !principalProvider.getPrincipal().scope.includes(Roles.MANAGE_DASHBOARDS),
-      principal: principalProvider.getPrincipal(),
-      getUsers: userProvider.getUsers,
-      getPermissions: dashboardPermissions.getPermissions,
-      addPermission: dashboardPermissions.addPermission,
-      addPermissionForAll: dashboardPermissions.addPermissionForAll,
-      revokePermission: dashboardPermissions.revokePermission,
-      revokePermissionForAll: dashboardPermissions.revokePermissionForAll,
-      toggleDashboardTag: tagService.toggleDashboardTag,
-      isFeatureEnabled: isFeatureEnabled
+      ownership: {
+        hideWriteControls: !principalProvider.getPrincipal().scope.includes(Roles.MANAGE_DASHBOARDS),
+        principal: principalProvider.getPrincipal(),
+        getUsers: userProvider.getUsers,
+        getPermissions: dashboardPermissions.getPermissions,
+        addPermission: dashboardPermissions.addPermission,
+        addPermissionForAll: dashboardPermissions.addPermissionForAll,
+        revokePermission: dashboardPermissions.revokePermission,
+        revokePermissionForAll: dashboardPermissions.revokePermissionForAll,
+        toggleDashboardTag: tagService.toggleDashboardTag,
+        isFeatureEnabled: isFeatureEnabled
+      }
     };
   });
