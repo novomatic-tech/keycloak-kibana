@@ -170,7 +170,7 @@ class GetRule {
 
   async process(cluster, action) {
     const document = await cluster.processAction(action);
-    if (!this._aclEnabled) {
+    if (!this._aclEnabled && document.found === false) {
       return document;
     }
     const { principal } = action;
@@ -200,7 +200,8 @@ class BulkGetRule {
     }
 
     const savedObjects = _.get(response, 'docs', []);
-    const allObjectsAllowed = _.every(savedObjects, doc => {
+    const foundSavedObjects = savedObjects.filter(doc => doc.found);
+    const allObjectsAllowed = _.every(foundSavedObjects, doc => {
       return doc._source.type !== 'dashboard' ||
                 action.principal.canView(doc._source) ||
                 action.principal.canEdit(doc._source) ||
@@ -209,7 +210,7 @@ class BulkGetRule {
     if (!allObjectsAllowed) {
       throw Boom.forbidden('The user is not authorized to fetch requested resources');
     }
-    includePermissionsInSavedObjects(action.principal, savedObjects);
+    includePermissionsInSavedObjects(action.principal, foundSavedObjects);
     return response;
   }
 }
