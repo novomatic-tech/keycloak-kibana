@@ -3,6 +3,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import { toastNotifications } from 'ui/notify';
+import { i18n } from '@kbn/i18n';
 import { FormattedMessage, injectI18n } from '@kbn/i18n/react';
 import {
   EuiBasicTable,
@@ -83,7 +84,6 @@ class ShareDashboardModalUi extends React.Component {
 
   shareDashboard = () => {
     const dashboardId = this.props.dashboard.id;
-    const intl = this.props.intl;
     const permission = this.state.selectedPermission.value;
     const userIds = this.state.selectedUsers.map(u => u.value);
 
@@ -100,25 +100,23 @@ class ShareDashboardModalUi extends React.Component {
         this.fetchPermissions(this.props.dashboard.id);
       } else {
         if(hasPermissionForAnyone) {
-          toastNotifications.addSuccess(intl.formatMessage({
-            id: 'keycloak.dashboard.shareModal.shareEverybodySuccessTitle',
-            defaultMessage: `Dashboard shared successfully with everybody.`
+          toastNotifications.addSuccess(i18n.translate('keycloak.dashboard.shareModal.shareEverybodySuccessTitle', {
+            defaultMessage: 'Dashboard shared successfully with everybody.'
           }));
         } else {
-          toastNotifications.addSuccess(intl.formatMessage({
-            id: 'keycloak.dashboard.shareModal.shareSuccessTitle',
+          toastNotifications.addSuccess(i18n.translate('keycloak.dashboard.shareModal.shareSuccessTitle', {
             defaultMessage: 'Dashboard shared successfully with {peopleAmount, number}\
- {peopleAmount, plural, one {person} other {persons}}.'
-          }, { peopleAmount: userIds.length }));
+ {peopleAmount, plural, one {person} other {persons}}.',
+            values: { peopleAmount: userIds.length }
+          }));
         }
         this.props.onClose();
       }
     }).catch((error) => {
       console.warn(error);
       toastNotifications.addDanger({
-        title: intl.formatMessage({
-          id: 'keycloak.dashboard.shareModal.unableAssignPermissionTitle',
-          defaultMessage: `Unable to assign new permissions for the dashboard.`
+        title: i18n.translate('keycloak.dashboard.shareModal.unableAssignPermissionTitle', {
+          defaultMessage: 'Unable to assign new permissions for the dashboard.'
         }),
         text: `${error.statusText}`,
       });
@@ -126,7 +124,6 @@ class ShareDashboardModalUi extends React.Component {
   };
 
   revokePermissions = (user) => {
-    const intl = this.props.intl;
     const tasks = user.permissions.map(permission => {
       return user.id
         ? this.props.revokePermission(this.props.dashboard.id, permission, user.id)
@@ -137,9 +134,8 @@ class ShareDashboardModalUi extends React.Component {
     }).catch((error) => {
       console.warn(error);
       toastNotifications.addDanger({
-        title: intl.formatMessage({
-          id: 'keycloak.dashboard.shareModal.unableRevokePermissionTitle',
-          defaultMessage: `Unable to revoke permissions for the dashboard.`
+        title: i18n.translate('keycloak.dashboard.shareModal.unableRevokePermissionTitle', {
+          defaultMessage: 'Unable to revoke permissions for the dashboard.'
         }),
         text: `${error.statusText}`,
       });
@@ -180,7 +176,6 @@ class ShareDashboardModalUi extends React.Component {
   );
 
   renderPermissionList = () => {
-    const { intl } = this.props;
     const { users, all } = this.state.permissions;
     let actualUsers = users;
     if (all.length > 0) {
@@ -190,8 +185,7 @@ class ShareDashboardModalUi extends React.Component {
     const columns = [
       {
         field: 'name',
-        name: intl.formatMessage({
-          id: 'keycloak.dashboard.shareModal.whoHasAccess',
+        name: i18n.translate('keycloak.dashboard.shareModal.whoHasAccess', {
           defaultMessage: 'Who has access'
         }),
         width: '200px',
@@ -229,12 +223,9 @@ class ShareDashboardModalUi extends React.Component {
         loading={this.state.isFetchingPermissions}
         columns={columns}
         noItemsMessage={this.state.isFetchingPermissions
-          ? intl.formatMessage({
-            id: 'keycloak.dashboard.shareModal.loadingPermissions',
+          ? i18n.translate('keycloak.dashboard.shareModal.loadingPermissions', {
             defaultMessage: 'Loading permissions...'
-          })
-          : intl.formatMessage({
-            id: 'keycloak.dashboard.shareModal.dashboardHasNotBeenShared',
+          }) : i18n.translate('keycloak.dashboard.shareModal.dashboardHasNotBeenShared', {
             defaultMessage: 'The dashboard has not been shared with anyone so far.'
           })
         }
@@ -243,7 +234,6 @@ class ShareDashboardModalUi extends React.Component {
   };
 
   render() {
-    const { intl } = this.props;
     return (
       <EuiOverlayMask>
         <EuiPanel style={{ flexGrow: 0.05 }}>
@@ -273,8 +263,7 @@ class ShareDashboardModalUi extends React.Component {
               onSearchChange={this.fetchUsers}
               onChange={this.setSelectedUsers}
               renderOption={this.renderUserItem}
-              placeholder={intl.formatMessage({
-                id: 'keycloak.dashboard.shareModal.enterUserNamesOrEmailsInput',
+              placeholder={i18n.translate('keycloak.dashboard.shareModal.enterUserNamesOrEmailsInput', {
                 defaultMessage: 'Enter user names or emails...'
               })}
               singleSelection={false}
@@ -322,8 +311,7 @@ ShareDashboardModalUi.propTypes = {
   addPermission: PropTypes.func.isRequired,
   addPermissionForAll: PropTypes.func.isRequired,
   revokePermission: PropTypes.func.isRequired,
-  revokePermissionForAll: PropTypes.func.isRequired,
-  intl: PropTypes.object.isRequired
+  revokePermissionForAll: PropTypes.func.isRequired
 };
 
 
