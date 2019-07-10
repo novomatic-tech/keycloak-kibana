@@ -56,9 +56,8 @@ const revokePermissionForAllScript = '' +
 
 export default class PermissionService {
 
-  constructor({ principal, cluster, index, type, userProvider, userMapper }) {
+  constructor({ principal, cluster, index, userProvider, userMapper }) {
     this._index = index;
-    this._type = type || 'doc';
     this._cluster = cluster;
     this._principal = principal;
     this._userProvider = userProvider;
@@ -68,7 +67,6 @@ export default class PermissionService {
   async getPermissions(documentId) {
     const response = await this._cluster.callWithInternalUser('get', {
       id: documentId,
-      type: this._type,
       index: this._index,
       ignore: [404]
     });
@@ -187,7 +185,6 @@ export default class PermissionService {
     }
     return {
       index: this._index,
-      type: this._type,
       id: documentId,
       body: {
         script: { inline: actualScript, params: scriptParams }
