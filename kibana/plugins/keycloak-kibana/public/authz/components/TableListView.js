@@ -1,6 +1,7 @@
 /*
  * The table list view component enriched with dashboard ownership feature.
  * Original source: https://github.com/elastic/kibana/blob/7.2/src/legacy/core_plugins/kibana/public/table_list_view/table_list_view.js
+ * Only admin can select & delete multiple dashboards.
  */
 /* eslint-disable import/no-unresolved */
 
@@ -25,7 +26,7 @@ import {
   EuiConfirmModal,
   EuiCallOut,
 } from '@elastic/eui';
-import {ShareDashboardModal} from "./ShareDashboardModal";
+import { ShareDashboardModal } from './ShareDashboardModal';
 import Permissions from '../constants/Permissions';
 import Roles from '../constants/Roles';
 import DashboardTags from './DashboardTags';
@@ -55,9 +56,7 @@ class TableListViewUi extends React.Component {
       selectedIds: [],
       page: 0,
       perPage: 20,
-      /* ADDED */
       showShareModal: false
-      /* END */
     };
 
   }
@@ -110,7 +109,7 @@ class TableListViewUi extends React.Component {
       isDeletingItems: true
     });
     try {
-      await this.props.deleteItems(this.state.selectedIds);
+      await this.props.deleteItems(this.getSelectedItems());
     } catch (error) {
       toastNotifications.addDanger({
         title: (
@@ -132,7 +131,7 @@ class TableListViewUi extends React.Component {
   }
 
   closeDeleteModal = () => {
-    this.setState({ showDeleteModal: false });
+    this.setState({ showDeleteModal: false, selectedItem: null });
   }
 
   openDeleteModal = () => {
@@ -155,7 +154,13 @@ class TableListViewUi extends React.Component {
     return false;
   }
 
+  getSelectedItems() {
+    return this.state.selectedItem && [this.state.selectedItem.id] || this.state.selectedIds;
+  }
+
   renderConfirmDeleteModal() {
+    const selection = this.getSelectedItems();
+
     let deleteButton = (
       <FormattedMessage
         id="kbn.table_list_view.listing.deleteSelectedItemsConfirmModal.confirmButtonLabel"
@@ -179,8 +184,8 @@ class TableListViewUi extends React.Component {
               id="kbn.table_list_view.listing.deleteSelectedConfirmModal.title"
               defaultMessage="Delete {itemCount} selected {entityName}?"
               values={{
-                itemCount: this.state.selectedIds.length,
-                entityName: (this.state.selectedIds.length === 1) ? this.props.entityName : this.props.entityNamePlural
+                itemCount: selection.length,
+                entityName: (selection.length === 1) ? this.props.entityName : this.props.entityNamePlural
               }}
             />
           }
@@ -270,7 +275,7 @@ class TableListViewUi extends React.Component {
 
     }
   }
-/*
+
   renderToolsLeft() {
     const selection = this.state.selectedIds;
 
@@ -300,11 +305,9 @@ class TableListViewUi extends React.Component {
       </EuiButton>
     );
   }
-*/
 
-  /* ADDED */
   closeShareModal = () => {
-    this.setState({ showShareModal: false });
+    this.setState({ showShareModal: false, selectedItem: null });
   };
 
   openShareModal = () => {
@@ -366,8 +369,8 @@ class TableListViewUi extends React.Component {
 
   onlyWhenUserCan = (permissions) => (record) => {
     const { principal } = this.props.ownership;
-    return principal.scope.includes(Roles.MANAGE_KIBANA) || // TODO: put this logic to backend
-      (principal.scope.includes(Roles.MANAGE_DASHBOARDS) &&
+    return principal.isAdmin() || // TODO: put this logic to backend
+      (principal.hasRole(Roles.MANAGE_DASHBOARDS) &&
         _.some(permissions, permission => record.permissions.includes(permission)));
   };
 
@@ -377,13 +380,12 @@ class TableListViewUi extends React.Component {
   };
 
   deleteItem = (record) => {
-    this.setState({ selectedIds: [record.id] });
+    this.setState({ selectedItem: record });
     this.openDeleteModal();
   };
 
-  /* END */
-
   renderTable() {
+    const { principal } = this.props.ownership;
     const pagination = {
       pageIndex: this.state.page,
       pageSize: this.state.perPage,
@@ -391,7 +393,15 @@ class TableListViewUi extends React.Component {
       pageSizeOptions: PAGE_SIZE_OPTIONS,
     };
 
-    let actions = [{
+    const selection = this.props.deleteItems && principal.isAdmin() ? {
+      onSelectionChange: (selection) => {
+        this.setState({
+          selectedIds: selection.map(item => { return item.id; })
+        });
+      }
+    } : null;
+
+    const actions = [{
       name: i18n.translate('kbn.table_list_view.listing.table.editActionName', {
         defaultMessage: 'Edit'
       }),
@@ -406,16 +416,15 @@ class TableListViewUi extends React.Component {
 
     const search = {
       onChange: this.setFilter.bind(this),
-      //toolsLeft: this.renderToolsLeft(),
+      toolsLeft: principal.isAdmin() ? this.renderToolsLeft() : null,
       defaultQuery: this.state.filter,
       box: {
         incremental: true,
       },
     };
 
-    let columns = this.props.tableColumns.slice();
+    const columns = this.props.tableColumns.slice();
 
-    /* ADDED */
     if (this.props.ownership.isFeatureEnabled('tagging')) {
       columns.push({
         field: 'markers',
@@ -445,7 +454,7 @@ class TableListViewUi extends React.Component {
     }
 
     if (this.props.ownership.isFeatureEnabled('acl')) {
-     actions.push({
+      actions.push({
         name: i18n.translate('keycloak.dashboard.listing.table.shareActionName', {
           defaultMessage: 'Share',
         }),
@@ -470,7 +479,6 @@ class TableListViewUi extends React.Component {
       enabled: this.onlyWhenUserCan([Permissions.MANAGE]),
       onClick: this.deleteItem
     });
-    /* END */
 
     if (this.props.editItem) {
       columns.push({
@@ -497,7 +505,7 @@ class TableListViewUi extends React.Component {
         pagination={pagination}
         loading={this.state.isFetchingItems}
         message={noItemsMessage}
-        //selection={selection}
+        selection={selection}
         search={search}
         sorting={true}
         data-test-subj="itemsInMemTable"
@@ -604,7 +612,6 @@ TableListViewUi.propTypes = {
   entityNamePlural: PropTypes.string.isRequired,
   tableListTitle: PropTypes.string.isRequired,
 
-  /* ADDED */
   ownership: PropTypes.shape({
     principal: PropTypes.object,
     getPermissions: PropTypes.func.isRequired,
@@ -615,7 +622,6 @@ TableListViewUi.propTypes = {
     toggleDashboardTag: PropTypes.func.isRequired,
     isFeatureEnabled: PropTypes.func.isRequired
   }).isRequired
-  /* END */
 };
 
 TableListViewUi.defaultProps = {

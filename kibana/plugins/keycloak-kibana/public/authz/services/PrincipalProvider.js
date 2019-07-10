@@ -1,5 +1,24 @@
 import AuthorizationError from './AuthorizationError';
 import * as Rx from 'rxjs';
+import Roles from '../constants/Roles';
+
+class Principal {
+  constructor(data) {
+    Object.assign(this, data);
+  }
+
+  hasRoles(roles) {
+    return roles.every(role => this.hasRole(role));
+  }
+
+  hasRole(role) {
+    return this.scope.includes(role);
+  }
+
+  isAdmin() {
+    return this.hasRole(Roles.MANAGE_KIBANA);
+  }
+}
 
 export default class PrincipalProvider {
 
@@ -29,12 +48,13 @@ export default class PrincipalProvider {
   _updatePrincipal() {
     const provider = this;
     this._principalPromise = this._httpClient.get(this._url).then(response => {
-      provider._principal = response.data;
+      const principal = new Principal(response.data);
+      provider._principal = principal;
       if (window.onKibanaPrincipalUpdated) {
-        window.onKibanaPrincipalUpdated(response.data);
+        window.onKibanaPrincipalUpdated(principal);
       }
-      this._principal$.next(provider._principal);
-      return response.data;
+      this._principal$.next(principal);
+      return principal;
     }).catch(error => {
       throw new AuthorizationError(`Cannot fetch user details. Status code: ${error.status}`, error);
     });

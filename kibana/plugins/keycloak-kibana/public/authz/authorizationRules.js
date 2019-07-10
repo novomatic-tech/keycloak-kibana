@@ -4,7 +4,7 @@ import Roles from './constants/Roles';
 const hasRole = (role) => {
   const roles = _.isArray(role) ? role : [role];
   return (principal) => {
-    return _.intersection(roles, principal.scope).length > 0;
+    return principal.hasRoles(roles);
   };
 };
 

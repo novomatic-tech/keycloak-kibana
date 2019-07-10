@@ -32,19 +32,19 @@ window.onKibanaPrincipalUpdated = function (principal) {
   ];
 
   let elementsToDisable = [];
-  if (!principal.scope.includes(Roles.MANAGE_DASHBOARDS)) {
+  if (!principal.hasRole(Roles.MANAGE_DASHBOARDS)) {
     elementsToDisable = elementsToDisable.concat(manageDashboardsControls);
   }
-  if (!principal.scope.includes(Roles.MANAGE_VISUALIZATIONS)) {
+  if (!principal.hasRole(Roles.MANAGE_VISUALIZATIONS)) {
     elementsToDisable = elementsToDisable.concat(manageVisualizationControls);
   }
-  if (!principal.scope.includes(Roles.MANAGE_KIBANA)) {
+  if (!principal.hasRole(Roles.MANAGE_KIBANA)) {
     elementsToDisable = elementsToDisable.concat(manageKibanaControls);
   }
-  if (!principal.scope.includes(Roles.VIEW_SEARCHES)) {
+  if (!principal.hasRole(Roles.VIEW_SEARCHES)) {
     elementsToDisable = elementsToDisable.concat(viewSearchesControls);
   }
-  if (!principal.scope.includes(Roles.MANAGE_SEARCHES)) {
+  if (!principal.hasRole(Roles.MANAGE_SEARCHES)) {
     elementsToDisable = elementsToDisable.concat(manageSearchesControls);
   }
 

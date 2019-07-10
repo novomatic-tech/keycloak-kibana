@@ -16,7 +16,7 @@ export default overriddenReactDirective(wrapInI18nContext(DashboardListing),
   (principalProvider, userProvider, dashboardPermissions, tagService) => {
     return {
       ownership: {
-        hideWriteControls: !principalProvider.getPrincipal().scope.includes(Roles.MANAGE_DASHBOARDS),
+        hideWriteControls: !principalProvider.getPrincipal().hasRole(Roles.MANAGE_DASHBOARDS),
         principal: principalProvider.getPrincipal(),
         getUsers: userProvider.getUsers,
         getPermissions: dashboardPermissions.getPermissions,
