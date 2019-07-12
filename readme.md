@@ -1,5 +1,7 @@
 # keycloak-kibana
 
+[![Build Status](https://travis-ci.org/novomatic-tech/keycloak-kibana.svg?branch=master)](https://travis-ci.org/novomatic-tech/keycloak-kibana)
+
 A Keycloak authorization plugin for Kibana
 
 ## Building the plugin
