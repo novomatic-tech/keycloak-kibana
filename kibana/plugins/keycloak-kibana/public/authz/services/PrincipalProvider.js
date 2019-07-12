@@ -1,5 +1,6 @@
 import AuthorizationError from './AuthorizationError';
 import * as Rx from 'rxjs';
+import _ from 'lodash';
 import Roles from '../constants/Roles';
 
 class Principal {
@@ -12,7 +13,8 @@ class Principal {
   }
 
   hasRole(role) {
-    return this.scope.includes(role);
+    const roles = _.isArray(role) ? role : [role];
+    return _.intersection(roles, this.scope).length > 0;
   }
 
   isAdmin() {

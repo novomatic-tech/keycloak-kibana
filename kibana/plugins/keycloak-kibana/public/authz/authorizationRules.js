@@ -1,12 +1,6 @@
-import _ from 'lodash';
 import Roles from './constants/Roles';
 
-const hasRole = (role) => {
-  const roles = _.isArray(role) ? role : [role];
-  return (principal) => {
-    return principal.hasRoles(roles);
-  };
-};
+const hasRole = role => principal => principal.hasRole(role);
 
 const hasId = id => resource => resource.id === id;
 const pathEndsWith = pathSuffix => url => url.pathname.endsWith(pathSuffix);

@@ -170,7 +170,7 @@ class GetRule {
 
   async process(cluster, action) {
     const document = await cluster.processAction(action);
-    if (!this._aclEnabled && document.found === false) {
+    if (!this._aclEnabled || document.found === false) {
       return document;
     }
     const { principal } = action;
@@ -262,7 +262,7 @@ class TelemetryRequestRule {
 }
 
 export const getAuthorizationRules = (aclEnabled) => [
-  new GetRule({ resourceType: 'dashboard' }),
+  new GetRule({ resourceType: 'dashboard', aclEnabled }),
   new CreateRule({ resourceType: 'dashboard', aclEnabled }),
   new UpdateRule({ resourceType: 'dashboard', aclEnabled }),
   new DeleteRule({ resourceType: 'dashboard', aclEnabled }),
