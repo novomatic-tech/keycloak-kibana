@@ -36,7 +36,6 @@
   },
   "dependencies": {
     "@kbn/i18n": "link:../../packages/kbn-i18n",
-    "rxjs": "link:../../node_modules/rxjs",
     "axios": "^0.18.0",
     "keycloak-connect": "^4.0.0",
     "keycloak-hapi": "^1.2.0",
