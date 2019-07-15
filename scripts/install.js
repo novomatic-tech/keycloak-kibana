@@ -80,7 +80,7 @@ const switchKibanaConfig = () => {
 };
 
 const bootstrapKibana = () => {
-  const cmd = `yarn kbn bootstrap`;
+  const cmd = `yarn kbn bootstrap --network-timeout 1000000`;
   const cwd = KIBANA_CATALOG;
   console.log(`> ${cmd} in ${cwd}`);
   execSync(cmd, { stdio, cwd });
