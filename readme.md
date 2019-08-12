@@ -89,8 +89,16 @@ Parameter | Description | Default
 `keycloak.acl.ownerAttribute`| OpenID Connect ID Token attribute which will be used as the user identifier for ACLs. Possible values are *sub*, *preferred_username*, *email*. | `sub`
 `keycloak.tagging.enabled` | A toggle for dashboard tagging feature. When enabled users are able to manage their favourite and home dashboards. | `false`
 
-
 Sample configuration section can be found in the `env/kibana/kibana.yml` file.
+
+**Important**
+
+When using the full version of Kibana (X-Pack), it is required to disable the security plugin:
+
+```yaml
+# disable x-pack security (required)
+xpack.security.enabled: false
+```
 
 ## Roles
 
