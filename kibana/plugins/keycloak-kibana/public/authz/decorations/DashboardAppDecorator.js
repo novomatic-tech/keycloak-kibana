@@ -13,7 +13,7 @@ export default function DashboardAppDecorator($delegate) {
   return $delegate.map(del => {
     const baseController = del.controller;
 
-    function newController($scope, $rootScope, $route, $routeParams, getAppState,
+    function newController($scope, $route, $routeParams, getAppState,
       dashboardConfig, localStorage, i18n, principalProvider) {
       const dashboard = $route.current.locals.dash;
       const principal = principalProvider.getPrincipal();
@@ -37,7 +37,7 @@ export default function DashboardAppDecorator($delegate) {
       };
       return baseController
         .bind(this)
-        .call(del, $scope, $rootScope, $route, $routeParams, getAppState, newDashboardConfig, localStorage, i18n);
+        .call(del, $scope, $route, $routeParams, getAppState, newDashboardConfig, localStorage, i18n);
     }
 
     del.controller = newController;

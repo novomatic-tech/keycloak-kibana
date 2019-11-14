@@ -12,13 +12,9 @@ import TagService from './services/TagService';
 import DashboardAppDecorator from './decorations/DashboardAppDecorator';
 import DashboardListingDecorator from './decorations/DashboardListingDecorator';
 import HomeRouteDecoration from './decorations/HomeRouteDecoration';
-import HeaderGlobalNavDecorator from './decorations/HeaderGlobalNavDecorator';
 
 import authorizationRules from './authorizationRules';
 import { isFeatureEnabled, isKibanaApp, decorateDirective } from './utils';
-
-const kibanaApp = uiModules.get('kibana');
-decorateDirective(kibanaApp, 'headerGlobalNav', HeaderGlobalNavDecorator);
 
 if (isKibanaApp()) {
   const dashboardApp = uiModules.get('app/dashboard');

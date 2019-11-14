@@ -23,7 +23,10 @@
         { "name": "use-infra-logs" },
         { "name": "use-apm" },
         { "name": "use-uptime" },
-        { "name": "use-monitoring" }
+        { "name": "use-monitoring" },
+        { "name": "use-code" },
+        { "name": "use-timelion" },
+        { "name": "use-graph" }
       ]
     }
   },
@@ -148,6 +151,9 @@
           "use-siem",
           "use-dev-tools",
           "use-monitoring",
+          "use-code",
+          "use-timelion",
+          "use-graph",
           "manage-kibana"
         ]
       }
