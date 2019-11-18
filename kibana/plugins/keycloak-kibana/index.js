@@ -93,7 +93,7 @@ const configureAllowedAppsNavLinks = (server) => {
     const principal = request.getPrincipal()._credentials;
 
     for (const navLink in uiCapabilities.navLinks) {
-      if (uiCapabilities.hasOwnProperty(navLink)) {
+      if (uiCapabilities.navLinks.hasOwnProperty(navLink)) {
         const rule = _.find(authorizationRules.navLinks, rule => rule.resource(navLink, principal));
         let isAuthorized = authorizationRules.allowMissingNavLinks;
 
@@ -101,6 +101,8 @@ const configureAllowedAppsNavLinks = (server) => {
           isAuthorized = rule.principal(principal, navLink);
         }
         uiCapabilities.navLinks[navLink] = !!isAuthorized;
+      } else {
+        uiCapabilities.navLinks[navLink] = false;
       }
     }
 
