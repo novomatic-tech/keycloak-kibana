@@ -5,7 +5,6 @@ import uiRoutes from 'ui/routes';
 import PrincipalProvider from './services/PrincipalProvider';
 import UserProvider from './services/UserProvider';
 import DashboardPermissions from './services/DashboardPermissions';
-import NavigationHandler from './services/NavigationHandler';
 import RouteAuthorization from './services/RouteAuthorization';
 import TagService from './services/TagService';
 
@@ -27,7 +26,6 @@ if (isKibanaApp()) {
 
 uiModules.get('app/keycloak', ['kibana'])
   .constant('authorizationRules', authorizationRules)
-  .service('navigationHandler', NavigationHandler)
   .service('routeAuthorization', RouteAuthorization)
   .service('principalProvider', PrincipalProvider)
   .service('dashboardPermissions', DashboardPermissions)
