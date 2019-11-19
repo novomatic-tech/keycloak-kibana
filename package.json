@@ -3,7 +3,7 @@
   "version": "3.0.0",
   "description": "A Keycloak authorization plugin for Kibana",
   "kibana": {
-    "location": "https://github.com/elastic/kibana/archive/v7.2.0.tar.gz"
+    "location": "https://github.com/elastic/kibana/archive/v7.4.2.tar.gz"
   },
   "scripts": {
     "install": "node scripts/install.js",

@@ -5,20 +5,15 @@ import uiRoutes from 'ui/routes';
 import PrincipalProvider from './services/PrincipalProvider';
 import UserProvider from './services/UserProvider';
 import DashboardPermissions from './services/DashboardPermissions';
-import NavigationHandler from './services/NavigationHandler';
 import RouteAuthorization from './services/RouteAuthorization';
 import TagService from './services/TagService';
 
 import DashboardAppDecorator from './decorations/DashboardAppDecorator';
 import DashboardListingDecorator from './decorations/DashboardListingDecorator';
 import HomeRouteDecoration from './decorations/HomeRouteDecoration';
-import HeaderGlobalNavDecorator from './decorations/HeaderGlobalNavDecorator';
 
 import authorizationRules from './authorizationRules';
 import { isFeatureEnabled, isKibanaApp, decorateDirective } from './utils';
-
-const kibanaApp = uiModules.get('kibana');
-decorateDirective(kibanaApp, 'headerGlobalNav', HeaderGlobalNavDecorator);
 
 if (isKibanaApp()) {
   const dashboardApp = uiModules.get('app/dashboard');
@@ -31,7 +26,6 @@ if (isKibanaApp()) {
 
 uiModules.get('app/keycloak', ['kibana'])
   .constant('authorizationRules', authorizationRules)
-  .service('navigationHandler', NavigationHandler)
   .service('routeAuthorization', RouteAuthorization)
   .service('principalProvider', PrincipalProvider)
   .service('dashboardPermissions', DashboardPermissions)

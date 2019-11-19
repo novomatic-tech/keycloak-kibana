@@ -8,12 +8,7 @@ class Principal {
     Object.assign(this, data);
   }
 
-  hasRoles(roles) {
-    return roles.every(role => this.hasRole(role));
-  }
-
-  hasRole(role) {
-    const roles = _.isArray(role) ? role : [role];
+  hasRole(...roles) {
     return _.intersection(roles, this.scope).length > 0;
   }
 

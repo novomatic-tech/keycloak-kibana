@@ -6,6 +6,7 @@ import { getAuthorizationRules } from './server/services/authorizationRules';
 import Principal from './server/services/Principal';
 import configurePermissionsRoutes from './server/routes/permissions';
 import Permissions from './public/authz/constants/Permissions';
+import authorizationRules from './public/authz/authorizationRules';
 import configureUsersRoutes from './server/routes/users';
 import pkg from './package.json';
 import InternalGrant from './server/services/InternalGrant';
@@ -84,6 +85,28 @@ const configureBackChannelLogoutEndpoint = (server, basePath) => {
       request.headers['kbn-version'] = pkg.kibana.version;
     }
     return reply.continue;
+  });
+};
+
+const configureAllowedAppsNavLinks = (server) => {
+  server.registerCapabilitiesModifier(async (request, uiCapabilities) => {
+    const principal = request.getPrincipal()._credentials;
+
+    for (const navLink in uiCapabilities.navLinks) {
+      if (uiCapabilities.navLinks.hasOwnProperty(navLink)) {
+        const rule = _.find(authorizationRules.navLinks, rule => rule.resource(navLink, principal));
+        let isAuthorized = authorizationRules.allowMissingNavLinks;
+
+        if (rule) {
+          isAuthorized = rule.principal(principal, navLink);
+        }
+        uiCapabilities.navLinks[navLink] = !!isAuthorized;
+      } else {
+        uiCapabilities.navLinks[navLink] = false;
+      }
+    }
+
+    return uiCapabilities;
   });
 };
 
@@ -221,6 +244,8 @@ export default function (kibana) {
       if (keycloakConfig.propagateBearerToken) {
         propagateBearerToken(server);
       }
+
+      configureAllowedAppsNavLinks(server);
     }
   });
 }

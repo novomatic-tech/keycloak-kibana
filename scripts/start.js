@@ -13,7 +13,7 @@ readdirSync(KIBANA_PLUGINS_CATALOG, { withFileTypes: true })
     args = args.concat(['--plugin-path', path.join(process.cwd(), KIBANA_PLUGINS_CATALOG, dirent.name)]);
   });
 
-const cmd = `node --no-warnings --max-http-header-size=65536 src/cli ${args.join(' ')}`;
+const cmd = `node --no-warnings --max-http-header-size=65536 --max-old-space-size=4096 src/cli ${args.join(' ')}`;
 const cwd = KIBANA_CATALOG;
 
 console.log(`> ${cmd} in ${cwd}`);

@@ -12,11 +12,13 @@ window.onKibanaPrincipalUpdated = function (principal) {
     'dashboard-listing td.euiTableRowCell:last-child'
   ];
   const manageVisualizationControls = [
-    'visualize-listing-table button.kuiButton',
-    'visualize-listing-table th.kuiTableHeaderCell:first-child',
-    'visualize-listing-table td.kuiTableRowCell:first-child',
-    '[data-test-subj=dashboardAddPanel] [data-test-subj=addNewSavedObjectLink]',
-    '[data-test-subj=dashboardPanelAction-editPanel]'
+    'visualize-listing-table [data-test-subj=newItemButton]',
+    'visualize-listing-table th.euiTableHeaderCellCheckbox:first-child',
+    'visualize-listing-table th.euiTableHeaderCell:last-child',
+    'visualize-listing-table td.euiTableRowCellCheckbox:first-child',
+    'visualize-listing-table td.euiTableRowCell:last-child',
+    '[data-test-subj=dashboardAddPanel] .euiFlyoutFooter',
+    '[data-test-subj=embeddablePanelAction-editPanel]'
   ];
   const manageKibanaControls = [
     'saved-object-finder button.kuiButton'

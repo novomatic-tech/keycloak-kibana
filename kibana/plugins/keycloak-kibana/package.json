@@ -5,7 +5,7 @@
   "main": "index.js",
   "license": "Apache-2.0",
   "kibana": {
-    "version": "7.2.0",
+    "version": "7.4.2",
     "templateVersion": "1.0.0"
   },
   "scripts": {
@@ -23,21 +23,22 @@
     "@elastic/eslint-import-resolver-kibana": "link:../../packages/kbn-eslint-import-resolver-kibana",
     "@kbn/expect": "link:../../packages/kbn-expect",
     "@kbn/plugin-helpers": "link:../../packages/kbn-plugin-helpers",
-    "babel-eslint": "^10.0.1",
-    "eslint": "^5.16.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "5.16.0",
     "eslint-plugin-babel": "^5.3.0",
-    "eslint-plugin-import": "^2.16.0",
-    "eslint-plugin-jest": "^22.4.1",
-    "eslint-plugin-jsx-a11y": "^6.2.1",
-    "eslint-plugin-mocha": "^5.3.0",
-    "eslint-plugin-no-unsanitized": "^3.0.2",
-    "eslint-plugin-prefer-object-spread": "^1.2.1",
-    "eslint-plugin-react": "^7.12.4"
+    "eslint-plugin-import": "2.18.2",
+    "eslint-plugin-jest": "22.7.1",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-mocha": "5.3.0",
+    "eslint-plugin-no-unsanitized": "3.0.2",
+    "eslint-plugin-prefer-object-spread": "1.2.1",
+    "eslint-plugin-react": "7.13.0"
   },
   "dependencies": {
     "axios": "^0.18.0",
     "keycloak-connect": "^4.0.0",
     "keycloak-hapi": "^1.2.0",
+    "lodash": "npm:@elastic/lodash@3.10.1-kibana3",
     "url-join": "^4.0.0",
     "yar": "^9.1.0"
   }
