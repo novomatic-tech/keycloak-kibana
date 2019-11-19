@@ -90,23 +90,24 @@ const configureBackChannelLogoutEndpoint = (server, basePath) => {
 
 const configureAllowedAppsNavLinks = (server) => {
   server.registerCapabilitiesModifier(async (request, uiCapabilities) => {
+    const clonedCapabilities = _.cloneDeep(uiCapabilities);
     const principal = request.getPrincipal()._credentials;
 
-    for (const navLink in uiCapabilities.navLinks) {
-      if (uiCapabilities.navLinks.hasOwnProperty(navLink)) {
+    for (const navLink in clonedCapabilities.navLinks) {
+      if (clonedCapabilities.navLinks.hasOwnProperty(navLink)) {
         const rule = _.find(authorizationRules.navLinks, rule => rule.resource(navLink, principal));
         let isAuthorized = authorizationRules.allowMissingNavLinks;
 
         if (rule) {
           isAuthorized = rule.principal(principal, navLink);
         }
-        uiCapabilities.navLinks[navLink] = !!isAuthorized;
+        clonedCapabilities.navLinks[navLink] = !!isAuthorized;
       } else {
-        uiCapabilities.navLinks[navLink] = false;
+        clonedCapabilities.navLinks[navLink] = false;
       }
     }
 
-    return uiCapabilities;
+    return clonedCapabilities;
   });
 };
 

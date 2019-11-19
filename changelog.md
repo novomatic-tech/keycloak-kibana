@@ -1,3 +1,6 @@
+## 3.1.0
+* Add compatibility with Kibana 7.4.2
+
 ## 3.0.0
 * Add support for Kibana X-Pack - [#24](https://github.com/novomatic-tech/keycloak-kibana/pull/24)
 * Add compatibility with Kibana 7.2.0
