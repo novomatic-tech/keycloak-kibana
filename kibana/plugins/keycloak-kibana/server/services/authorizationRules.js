@@ -3,13 +3,18 @@ import Boom from 'boom';
 import Permissions from '../../public/authz/constants/Permissions';
 import Roles from '../../public/authz/constants/Roles';
 
-const includePermissionsInSavedObjects = (principal, docs) => {
+const addPermissionsForNoAdminRole = (principal, docs) => {
   docs.filter(doc => doc._source.type).forEach(doc => {
+    if(principal.canDoAnything(doc._source)) {
+      return;
+    }
+
     const permissions = principal.getPermissionsFor(doc._source);
     const owner = _.get(doc._source, 'acl.owner', null);
     const attributes = doc._source[doc._source.type];
     attributes.permissions = permissions;
     attributes.owner = owner;
+
   });
 };
 
@@ -108,7 +113,7 @@ class UpdateRule {
         { id, type, index, ignore: 404 }, {});
 
       if (!principal.canEdit(document._source) &&
-                !principal.canManage(document._source)) {
+        !principal.canManage(document._source)) {
         throw Boom.forbidden(`The user has no permissions to update this resource.`);
       }
       clientParams.body.acl = document.found ? document._source.acl : principal.createNewAcl();
@@ -151,7 +156,7 @@ class FindRule {
     const response = await cluster.processAction(action);
     if (this._aclEnabled) {
       const savedObjects = _.get(response, 'hits.hits', []);
-      includePermissionsInSavedObjects(principal, savedObjects);
+      addPermissionsForNoAdminRole(principal, savedObjects);
     }
     return response;
   }
@@ -210,7 +215,8 @@ class BulkGetRule {
     if (!allObjectsAllowed) {
       throw Boom.forbidden('The user is not authorized to fetch requested resources');
     }
-    includePermissionsInSavedObjects(action.principal, foundSavedObjects);
+
+    addPermissionsForNoAdminRole(action.principal, foundSavedObjects);
     return response;
   }
 }
