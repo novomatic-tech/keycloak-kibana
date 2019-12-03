@@ -1,3 +1,6 @@
+## Upcoming 3.1.1
+* Fix problem with authentication after keycloak server restarting - [#36](https://github.com/novomatic-tech/keycloak-kibana/pull/36)
+
 ## 3.1.0
 * Add compatibility with Kibana 7.4.2
 

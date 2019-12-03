@@ -20,15 +20,20 @@ export default class InternalGrant {
     return value.access_token.token;
   };
 
-  getValue = async () => {
-    if (!this._grant || this._grant.refresh_token.isExpired()) {
-      this._grant = await this._grantManager.obtainFromClientCredentials();
-      return this._grant;
-    }
-    return await this._grantManager.ensureFreshness(this._grant);
+  obtainGrant = async () => {
+    this._grant = await this._grantManager.obtainFromClientCredentials();
+    return this._grant;
   };
 
-  reset = async () => {
-    this._grant = null;
+  getValue = async () => {
+    if (!this._grant || this._grant.refresh_token.isExpired()) {
+      return await this.obtainGrant();
+    }
+    return await this._grantManager.ensureFreshness(this._grant)
+      // TODO: Fix a problem with an incorrect token between keycloak server restart and obtaining a new token.
+      .catch(async () => {
+        console.warn('Cannot ensure grant freshness. A new one will be obtain.');
+        return await this.obtainGrant();
+      });
   };
 }
