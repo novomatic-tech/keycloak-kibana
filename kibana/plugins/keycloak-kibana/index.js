@@ -145,7 +145,6 @@ const initializeInternalGrant = (server, keycloakConfig) => {
   const adapter = new KeycloakAdapter(server, keycloakConfig);
   const internalGrant = new InternalGrant(adapter.grantManager);
   server.decorate('server', 'getInternalGrant', () => internalGrant);
-  server.decorate('server', 'resetInternalGrant', () => internalGrant.reset());
   return internalGrant.initialize();
 };
 
