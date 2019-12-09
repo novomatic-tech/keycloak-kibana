@@ -1,3 +1,6 @@
+## 3.2.0-alpha1
+* Add compatibility with Kibana 7.5.0
+
 ## 3.1.1
 * Releasing stable version
 
