@@ -1,3 +1,6 @@
+## 3.1.1
+* Releasing stable version
+
 ## 3.1.1-alpha1
 * Fix problem with saving dashboards in inspecing mode - [#35](https://github.com/novomatic-tech/keycloak-kibana/pull/35)
 * Fix problem with authentication after keycloak server restarting - [#36](https://github.com/novomatic-tech/keycloak-kibana/pull/36)
