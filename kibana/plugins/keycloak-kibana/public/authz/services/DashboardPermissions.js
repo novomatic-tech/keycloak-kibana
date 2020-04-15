@@ -1,3 +1,5 @@
+/* eslint-disable import/no-unresolved */
+import chrome from 'ui/chrome';
 import _ from 'lodash';
 
 export default class DashboardPermissions {
@@ -9,7 +11,7 @@ export default class DashboardPermissions {
     getPermissions = async (dashboardId) => {
       const response = await this._httpClient({
         method: 'GET',
-        url: `/api/saved_objects/dashboard/${dashboardId}/permissions`,
+        url: chrome.addBasePath(`/api/saved_objects/dashboard/${dashboardId}/permissions`),
       });
       return response.data;
     };
@@ -37,7 +39,7 @@ export default class DashboardPermissions {
     _sendPermissionRequest = (method, dashboardId, permission, data) => {
       return this._httpClient({
         method,
-        url: `/api/saved_objects/dashboard/${dashboardId}/permissions/${permission}`,
+        url: chrome.addBasePath(`/api/saved_objects/dashboard/${dashboardId}/permissions/${permission}`),
         headers: { 'Content-Type': 'application/json' },
         data
       });

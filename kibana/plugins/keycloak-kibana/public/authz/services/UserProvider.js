@@ -1,3 +1,6 @@
+/* eslint-disable import/no-unresolved */
+import chrome from 'ui/chrome';
+
 export default class UserProvider {
 
   constructor($http) {
@@ -5,7 +8,7 @@ export default class UserProvider {
   }
 
     getUsers = (filter = null) => {
-      return this._httpClient({ method: 'GET', url: '/api/users', params: { filter } })
+      return this._httpClient({ method: 'GET', url: chrome.addBasePath('/api/users'), params: { filter } })
         .then(resp => resp.data);
     }
 }
