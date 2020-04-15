@@ -1,4 +1,4 @@
-## 3.2.1-alpha1
+## 3.2.1
 * Improve handling of basePath
 
 ## 3.2.0
