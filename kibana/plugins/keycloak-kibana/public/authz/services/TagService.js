@@ -1,3 +1,6 @@
+/* eslint-disable import/no-unresolved */
+import chrome from 'ui/chrome';
+
 export default class TagService {
 
   constructor($http) {
@@ -7,21 +10,21 @@ export default class TagService {
     getAllDashboardTags = () => {
       return this._httpClient({
         method: 'get',
-        url: `/api/dashboard-tags`
+        url: chrome.addBasePath(`/api/dashboard-tags`)
       }).then(resp => resp.data);
     };
 
     addDashboardTag = (dashboardId, tag) => {
       return this._httpClient({
         method: 'put',
-        url: `/api/saved_objects/dashboard/${dashboardId}/tags/${tag}`
+        url: chrome.addBasePath(`/api/saved_objects/dashboard/${dashboardId}/tags/${tag}`)
       });
     };
 
     removeDashboardTag = (dashboardId, tag) => {
       return this._httpClient({
         method: 'delete',
-        url: `/api/saved_objects/dashboard/${dashboardId}/tags/${tag}`
+        url: chrome.addBasePath(`/api/saved_objects/dashboard/${dashboardId}/tags/${tag}`)
       });
     };
 

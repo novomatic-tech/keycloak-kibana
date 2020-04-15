@@ -1,3 +1,6 @@
+## 3.2.1-alpha1
+* Improve handling of basePath
+
 ## 3.2.0
 * Add compatibility with Kibana 7.5.0
 
