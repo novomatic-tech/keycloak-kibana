@@ -1,3 +1,6 @@
+## 3.3.0
+* Update packages to work with `keycloak` - `9.0.0`
+
 ## 3.2.1
 * Improve handling of basePath
 
