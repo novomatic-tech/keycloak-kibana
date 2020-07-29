@@ -36,8 +36,8 @@
   },
   "dependencies": {
     "axios": "^0.18.0",
-    "keycloak-connect": "^4.0.0",
-    "keycloak-hapi": "^1.2.0",
+    "keycloak-connect": "^9.0.2",
+    "keycloak-hapi": "^2.0.0",
     "lodash": "npm:@elastic/lodash@3.10.1-kibana3",
     "url-join": "^4.0.0",
     "yar": "^9.1.0"
