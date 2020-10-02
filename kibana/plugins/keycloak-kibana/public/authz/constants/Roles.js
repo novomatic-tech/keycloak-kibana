@@ -16,7 +16,6 @@ export default {
   USE_SIEM: 'use-siem',
   USE_DEV_TOOLS: 'use-dev-tools',
   USE_MONITORING: 'use-monitoring',
-  USE_TIMELION: 'use-timelion',
   USE_CODE: 'use-code',
   USE_GRAPH: 'use-graph',
   MANAGE_KIBANA: 'manage-kibana',
