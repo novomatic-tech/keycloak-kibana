@@ -50,6 +50,11 @@ export default class SavedObjectAction {
         this.request.method === 'post';
   };
 
+  isTimelionRequest = () => {
+    return this.request.path.startsWith('/api/timelion/') &&
+        this.request.method === 'post';
+  };
+
   isRetrievalOf = (resourceType) => {
     const { endpoint, clientParams } = this.clusterRequest;
     return endpoint === 'get' && clientParams.id.startsWith(resourceType);

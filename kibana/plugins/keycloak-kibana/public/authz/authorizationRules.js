@@ -26,7 +26,6 @@ const authorizationRules = {
     { resource: hasId('kibana:dev_tools'), principal: hasRole(Roles.USE_DEV_TOOLS) },
     { resource: hasId('monitoring'), principal: hasRole(Roles.USE_MONITORING) },
     { resource: hasId('kibana:management'), principal: hasRole(Roles.MANAGE_KIBANA) },
-    { resource: hasId('timelion'), principal: hasRole(Roles.USE_TIMELION) },
     { resource: hasId('code'), principal: hasRole(Roles.USE_CODE) },
     { resource: hasId('graph'), principal: hasRole(Roles.USE_GRAPH) }
   ],
@@ -52,7 +51,6 @@ const authorizationRules = {
     { resource: whether(isKibanaApp, hashStartsWith('#/dev_tools')), principal: hasRole(Roles.USE_DEV_TOOLS) },
     { resource: whether(pathEndsWith('/app/monitoring')), principal: hasRole(Roles.USE_MONITORING) },
     { resource: whether(pathEndsWith('#/management')), principal: hasRole(Roles.MANAGE_KIBANA) },
-    { resource: whether(pathEndsWith('/app/timelion')), principal: hasRole(Roles.USE_TIMELION) },
     { resource: whether(pathEndsWith('/app/code')), principal: hasRole(Roles.USE_CODE) },
     { resource: whether(pathEndsWith('/app/graph')), principal: hasRole(Roles.USE_GRAPH) },
   ],

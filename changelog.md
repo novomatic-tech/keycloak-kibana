@@ -1,3 +1,6 @@
+## 3.3.1
+* Fix issue with `timelion` on non admin accounts
+
 ## 3.3.0
 * Update packages to work with `keycloak` - `9.0.0`
 

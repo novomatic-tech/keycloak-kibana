@@ -267,6 +267,16 @@ class TelemetryRequestRule {
   }
 }
 
+class TimelionRequestRule {
+  matches(action) {
+    return action.isTimelionRequest();
+  }
+
+  process(cluster, action) {
+    return cluster.processAction(action);
+  }
+}
+
 export const getAuthorizationRules = (aclEnabled) => [
   new GetRule({ resourceType: 'dashboard', aclEnabled }),
   new CreateRule({ resourceType: 'dashboard', aclEnabled }),
@@ -288,6 +298,7 @@ export const getAuthorizationRules = (aclEnabled) => [
   new CanvasRequestRule(),
   new InfraRequestRule(),
   new TelemetryRequestRule(),
+  new TimelionRequestRule(),
   new AnyActionRule({ allowedWhen: (action) => action.principal.canDoAnything() })
 ];
 
